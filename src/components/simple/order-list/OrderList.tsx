@@ -12,10 +12,10 @@ export const OrderListContainer = React.memo(({ orders, language }: IOrderListPr
     return (
         <View style={{ width: "100%", height: "100%", flexDirection: "row" }}>
             <View style={{ flex: 1, height: "100%", overflow: "hidden" }}>
-                <OrderListColumn orders={orders.filter(o => o.status < OrderStatuses.COMPLETE)} language={language} />
+                <OrderListColumn title="Готовятся" orders={orders.filter(o => o.status < OrderStatuses.COMPLETE)} language={language} />
             </View>
             <View style={{ flex: 1, height: "100%", overflow: "hidden" }}>
-                <OrderListColumn orders={orders.filter(o => o.status === OrderStatuses.COMPLETE)} language={language} />
+                <OrderListColumn title="Готовы" orders={orders.filter(o => o.status === OrderStatuses.COMPLETE)} language={language} />
             </View>
         </View>
     );
