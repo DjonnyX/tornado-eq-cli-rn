@@ -22,7 +22,6 @@ interface ILoadingProps extends StackScreenProps<any, MainNavigationScreenTypes.
 const LoadingScreenContainer = React.memo(({ _progress, _loaded, navigation }: ILoadingProps) => {
   useEffect(() => {
     if (_loaded) {
-      //setTimeout(() => {
       navigation.dispatch(
         CommonActions.reset({
           routes: [
@@ -30,7 +29,6 @@ const LoadingScreenContainer = React.memo(({ _progress, _loaded, navigation }: I
           ],
         })
       );
-      //});
     }
   }, [_loaded]);
 

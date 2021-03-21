@@ -133,7 +133,7 @@ class OrderApiService implements IDataService {
                 from(this.getAccessToken()).pipe(
                     switchMap(token => {
                         return from(
-                            fetch(`${config.orderServer.address}/api/v1/refs`,
+                            fetch(`${config.orderServer.address}/api/v1/refs?storeId=${this._storeId}`,
                                 {
                                     method: "GET",
                                     headers: {
@@ -167,7 +167,7 @@ class OrderApiService implements IDataService {
                 from(this.getAccessToken()).pipe(
                     switchMap(token => {
                         return from(
-                            fetch(`${config.orderServer.address}/api/v1/orders?storeId.equals=${this._storeId}`,
+                            fetch(`${config.orderServer.address}/api/v1/orders?storeId=${this._storeId}`,
                                 {
                                     method: "GET",
                                     headers: {
@@ -186,130 +186,6 @@ class OrderApiService implements IDataService {
                     return throwError(err);
                 }),
                 map(resData => resData.data)
-            );
-        } catch (err) {
-            return throwError(Error("Something went wrong"));
-        }
-        return response;
-    }
-
-    getOrder(id: string): Observable<IOrder> {
-        Log.i("OrderApiService", "getOrder");
-        let response: Observable<IOrder>;
-        try {
-            response = request(
-                from(this.getAccessToken()).pipe(
-                    switchMap(token => {
-                        return from(
-                            fetch(`${config.orderServer.address}/api/v1/order/${id}`,
-                                {
-                                    method: "GET",
-                                    headers: {
-                                        "x-access-token": token,
-                                        "content-type": "application/json",
-                                    },
-                                }
-                            )
-                        );
-                    }),
-                ),
-            ).pipe(
-                switchMap(res => parseResponse(res)),
-                catchError(err => {
-                    Log.i("OrderApiService", "> getOrder: " + err);
-                    return throwError(err);
-                }),
-                map(resData => resData.data)
-            );
-        } catch (err) {
-            return throwError(Error("Something went wrong"));
-        }
-        return response;
-    }
-
-    changeOrderStatus(id: string, status: OrderStatuses): Observable<{
-        meta: {
-            ref: IRef,
-        },
-        data: IOrder,
-    }> {
-        Log.i("OrderApiService", "changeOrderStatus");
-        let response: Observable<{
-            meta: {
-                ref: IRef,
-            },
-            data: IOrder,
-        }>;
-        try {
-            response = request(
-                from(this.getAccessToken()).pipe(
-                    switchMap(token => {
-                        return from(
-                            fetch(`${config.orderServer.address}/api/v1/order/${id}`,
-                                {
-                                    method: "PUT",
-                                    headers: {
-                                        "x-access-token": token,
-                                        "content-type": "application/json",
-                                    },
-                                    body: JSON.stringify({ status }),
-                                }
-                            )
-                        );
-                    }),
-                ),
-            ).pipe(
-                switchMap(res => parseResponse(res)),
-                catchError(err => {
-                    Log.i("OrderApiService", "> changeOrderStatus: " + err);
-                    return throwError(err);
-                }),
-                map(resData => resData)
-            );
-        } catch (err) {
-            return throwError(Error("Something went wrong"));
-        }
-        return response;
-    }
-
-    changeOrderPositionStatus(id: string, positionId: string, status: OrderPositionStatuses): Observable<{
-        meta: {
-            ref: IRef,
-        },
-        data: IOrder,
-    }> {
-        Log.i("OrderApiService", "changeOrderPositionStatus");
-        let response: Observable<{
-            meta: {
-                ref: IRef,
-            },
-            data: IOrder,
-        }>;
-        try {
-            response = request(
-                from(this.getAccessToken()).pipe(
-                    switchMap(token => {
-                        return from(
-                            fetch(`${config.orderServer.address}/api/v1/order/${id}/position/${positionId}`,
-                                {
-                                    method: "PUT",
-                                    headers: {
-                                        "x-access-token": token,
-                                        "content-type": "application/json",
-                                    },
-                                    body: JSON.stringify({ status }),
-                                }
-                            )
-                        );
-                    }),
-                ),
-            ).pipe(
-                switchMap(res => parseResponse(res)),
-                catchError(err => {
-                    Log.i("OrderApiService", "> changeOrderPositionStatus: " + err);
-                    return throwError(err);
-                }),
-                map(resData => resData)
             );
         } catch (err) {
             return throwError(Error("Something went wrong"));
