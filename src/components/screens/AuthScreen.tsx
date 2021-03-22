@@ -1,8 +1,8 @@
-import React, { Dispatch, useCallback, useEffect, useState } from "react";
+import React, { Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { StackScreenProps } from "@react-navigation/stack";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { Picker } from '@react-native-community/picker';
-import { View, TextInput, Text } from "react-native";
+import { View, TextInput, Text, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
 import { CommonActions } from "@react-navigation/native";
 import { take, takeUntil } from "rxjs/operators";
@@ -30,10 +30,24 @@ const SN_STATE = {
 
 const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
     const [serialNumber, setSerialNumber] = useState<string>(value);
+    const wrapperTextInputRef = useRef<TouchableOpacity>();
+    const textInputRef = useRef<TextInput>();
 
     useEffect(() => {
         SN_STATE.value = value;
     }, [value]);
+
+    useEffect(() => {
+        if (!!wrapperTextInputRef) {
+            wrapperTextInputRef.current?.focus();
+        }
+    }, [wrapperTextInputRef]);
+
+    const focusHandler = useCallback(() => {
+        if (!!textInputRef) {
+            textInputRef.current?.focus();
+        }
+    }, [textInputRef]);
 
     const changeSerialNumHandler = (val: string) => {
         setSerialNumber(() => {
@@ -47,20 +61,23 @@ const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
     }
 
     const isValid = serialNumber !== undefined && serialNumber.length > 0;
+
     return <>
         <View style={{ marginBottom: 12 }}>
-            <TextInput keyboardType="number-pad" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
-                selectionColor={theme.themes[theme.name].service.textInput.selectionColor}
-                underlineColorAndroid={isValid
-                    ? theme.themes[theme.name].service.textInput.underlineColor
-                    : theme.themes[theme.name].service.textInput.underlineWrongColor
-                }
-                style={{
-                    fontSize: 16,
-                    textAlign: "center", color: theme.themes[theme.name].service.textInput.textColor,
-                    minWidth: 140, marginBottom: 12
-                }} editable={!isProgress}
-                placeholder="Серийный ключ" onChangeText={changeSerialNumHandler} value={serialNumber} />
+            <TouchableOpacity ref={wrapperTextInputRef as any} onFocus={focusHandler}>
+                <TextInput ref={textInputRef as any} keyboardType="number-pad" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
+                    selectionColor={theme.themes[theme.name].service.textInput.selectionColor}
+                    underlineColorAndroid={isValid
+                        ? theme.themes[theme.name].service.textInput.underlineColor
+                        : theme.themes[theme.name].service.textInput.underlineWrongColor
+                    }
+                    style={{
+                        fontSize: 16,
+                        textAlign: "center", color: theme.themes[theme.name].service.textInput.textColor,
+                        minWidth: 140, marginBottom: 12
+                    }} editable={!isProgress}
+                    placeholder="Серийный ключ" onChangeText={changeSerialNumHandler} value={serialNumber} />
+            </TouchableOpacity>
             {
                 !isValid &&
                 <Text style={{ fontSize: 12, color: theme.themes[theme.name].service.errorLabel.textColor }}>
@@ -83,33 +100,48 @@ interface IFormTParams {
 const FormTParams = React.memo(({ stores, isProgress, onComplete }: IFormTParams) => {
     const [terminalName, setTerminalName] = useState<string>("");
     const [storeId, setStoreId] = useState<string>("");
+    const wrapperTextInputRef = useRef<TouchableOpacity>();
+    const textInputRef = useRef<TextInput>();
 
     const changeTerminalNameHandler = (val: string) => {
         setTerminalName(val);
     };
 
     const completeHandler = () => {
-        console.warn(terminalName, storeId)
         onComplete(terminalName, storeId);
     }
+
+    useEffect(() => {
+        if (!!wrapperTextInputRef) {
+            wrapperTextInputRef.current?.focus();
+        }
+    }, [wrapperTextInputRef]);
+
+    const focusHandler = useCallback(() => {
+        if (!!textInputRef) {
+            textInputRef.current?.focus();
+        }
+    }, [textInputRef]);
 
     const isTerminalNameValid = terminalName !== undefined && terminalName.length > 0;
     const isStoreIdValid = storeId !== undefined && storeId.length > 1;
     const isStep2Valid = isTerminalNameValid && isStoreIdValid;
     return <>
         <View style={{ marginBottom: 12 }}>
-            <TextInput keyboardType="default" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
-                selectionColor={theme.themes[theme.name].service.textInput.selectionColor}
-                underlineColorAndroid={isTerminalNameValid
-                    ? theme.themes[theme.name].service.textInput.underlineColor
-                    : theme.themes[theme.name].service.textInput.underlineWrongColor
-                }
-                style={{
-                    fontSize: 16,
-                    textAlign: "center", color: theme.themes[theme.name].service.textInput.textColor,
-                    minWidth: 180
-                }} editable={!isProgress}
-                placeholder="Название терминала" onChangeText={changeTerminalNameHandler} value={terminalName} />
+            <TouchableWithoutFeedback ref={wrapperTextInputRef as any} onFocus={focusHandler}>
+                <TextInput ref={textInputRef as any} keyboardType="default" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
+                    selectionColor={theme.themes[theme.name].service.textInput.selectionColor}
+                    underlineColorAndroid={isTerminalNameValid
+                        ? theme.themes[theme.name].service.textInput.underlineColor
+                        : theme.themes[theme.name].service.textInput.underlineWrongColor
+                    }
+                    style={{
+                        fontSize: 16,
+                        textAlign: "center", color: theme.themes[theme.name].service.textInput.textColor,
+                        minWidth: 180
+                    }} editable={!isProgress}
+                    placeholder="Название терминала" onChangeText={changeTerminalNameHandler} value={terminalName} />
+            </TouchableWithoutFeedback>
             {
                 !isTerminalNameValid &&
                 <Text style={{ fontSize: 12, color: theme.themes[theme.name].service.errorLabel.textColor }}>
