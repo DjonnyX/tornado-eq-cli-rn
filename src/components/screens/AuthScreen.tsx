@@ -2,7 +2,7 @@ import React, { Dispatch, useCallback, useEffect, useRef, useState } from "react
 import { StackScreenProps } from "@react-navigation/stack";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { Picker } from '@react-native-community/picker';
-import { View, TextInput, Text, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import { View, TextInput, Text, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
 import { CommonActions } from "@react-navigation/native";
 import { take, takeUntil } from "rxjs/operators";
@@ -135,7 +135,7 @@ const FormTParams = React.memo(({ stores, isProgress, onComplete }: IFormTParams
     const isStep2Valid = isTerminalNameValid && isStoreIdValid;
     return <>
         <View style={{ marginBottom: 12 }}>
-            <TouchableWithoutFeedback ref={wrapperTextInputRef as any} onFocus={focusHandler}>
+            <TouchableOpacity ref={wrapperTextInputRef as any} onFocus={focusHandler}>
                 <TextInput ref={textInputRef as any} keyboardType="default" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
                     selectionColor={theme.themes[theme.name].service.textInput.selectionColor}
                     underlineColorAndroid={isTerminalNameValid
@@ -148,7 +148,7 @@ const FormTParams = React.memo(({ stores, isProgress, onComplete }: IFormTParams
                         minWidth: 180
                     }} editable={!isProgress}
                     placeholder="Название терминала" onChangeText={changeTerminalNameHandler} value={terminalName} />
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
             {
                 !isTerminalNameValid &&
                 <Text style={{ fontSize: 12, color: theme.themes[theme.name].service.errorLabel.textColor }}>
