@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import Color from "color";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, TouchableOpacity, StyleProp, ViewStyle, TextStyle, Text } from "react-native";
 import DropShadow from "react-native-drop-shadow";
 import { uiutils } from "../../utils/ui";
@@ -15,55 +16,60 @@ interface ISimpleButtonProps {
     onPress: () => void;
 }
 
-interface IStyles {
-    shadow: StyleProp<ViewStyle>;
-    sView: StyleProp<ViewStyle>;
-    sLayout: StyleProp<ViewStyle>;
-    sText: StyleProp<TextStyle>;
-}
+export const SimpleButton = ({ title, style, styleDisabled, textStyle, textStyleDisabled, styleView, styleViewDisabled,
+    disabled = false, onPress }: ISimpleButtonProps) => {
+    const [focus, setFocus] = useState(false);
+    const ref = useRef<TouchableOpacity>();
 
-export const SimpleButton = React.memo(({ title, style, styleDisabled, textStyle, textStyleDisabled, styleView, styleViewDisabled, disabled = false, onPress }: ISimpleButtonProps) => {
-    const [styles, setStyles] = useState<IStyles>({} as IStyles);
+    const opacity = disabled ? 0.35 : 1;
+    const shadow = uiutils.createShadow((style as any)?.backgroundColor);
+    let sView: StyleProp<ViewStyle> = { borderRadius: 3, overflow: "hidden", opacity, ...styleView as any };
+    let sLayout: StyleProp<ViewStyle> = { paddingLeft: 22, paddingRight: 22, paddingTop: 16, paddingBottom: 16, ...style as any };
+    let sText: StyleProp<TextStyle> = { fontSize: 14, fontWeight: "bold", ...textStyle as any };
 
-    useEffect(() => {
-        const shadow = uiutils.createShadow((style as any)?.backgroundColor);
-        let sView: StyleProp<ViewStyle> = { borderRadius: 3, overflow: "hidden", opacity: disabled ? 0.35 : 1, ...styleView as any };
-        let sLayout: StyleProp<ViewStyle> = { paddingLeft: 22, paddingRight: 22, paddingTop: 16, paddingBottom: 16, ...style as any };
-        let sText: StyleProp<TextStyle> = { fontSize: 14, fontWeight: "bold", ...textStyle as any };
-
-        if (disabled) {
-            if (!!styleViewDisabled) {
-                sView = { ...sView as any, ...styleViewDisabled as any };
-            }
-            if (!!styleDisabled) {
-                sLayout = { ...sLayout as any, ...styleDisabled as any };
-            }
-            if (!!textStyleDisabled) {
-                sText = { ...sText as any, ...textStyleDisabled as any };
-            }
+    if (disabled) {
+        if (!!styleViewDisabled) {
+            sView = { ...sView as any, ...styleViewDisabled as any };
         }
+        if (!!styleDisabled) {
+            sLayout = { ...sLayout as any, ...styleDisabled as any };
+        }
+        if (!!textStyleDisabled) {
+            sText = { ...sText as any, ...textStyleDisabled as any };
+        }
+    }
 
-        setStyles({
-            shadow,
-            sView,
-            sLayout,
-            sText,
-        })
-    }, [disabled]);
+    if (focus) {
+        sLayout = { ...sLayout as any, borderWidth: 4, borderColor: Color((style as any).backgroundColor).darken(0.25).toString() };
+    }
 
     const onPressHandler = useCallback(() => {
         if (!disabled) {
             onPress();
         }
-    }, [disabled, title]);
+    }, [disabled]);
+
+    const onFocusHandler = useCallback(() => {
+        setFocus(true);
+    }, []);
+
+    const onBlurHandler = useCallback(() => {
+        setFocus(false);
+    }, []);
+
+    useEffect(() => {
+        if (!!ref && focus) {
+            ref.current?.focus();
+        }
+    }, [focus, ref]);
 
     return (
-        <DropShadow style={styles.shadow}>
-            <TouchableOpacity style={styles.sView} onPress={onPressHandler} disabled={disabled}>
+        <DropShadow style={shadow}>
+            <TouchableOpacity ref={ref as any} style={sView} onPress={onPressHandler} onFocus={onFocusHandler} onBlur={onBlurHandler} disabled={disabled}>
                 <View
-                    style={styles.sLayout}
+                    style={sLayout}
                 >
-                    <Text style={styles.sText}>
+                    <Text style={sText}>
                         {
                             title
                         }
@@ -72,4 +78,4 @@ export const SimpleButton = React.memo(({ title, style, styleDisabled, textStyle
             </TouchableOpacity>
         </DropShadow>
     )
-});
+};
