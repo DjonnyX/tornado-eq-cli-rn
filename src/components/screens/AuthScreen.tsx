@@ -27,14 +27,15 @@ interface IFormSNProps {
 const SN_STATE = {
     value: "",
 }
-
 const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
-    const [serialNumber, setSerialNumber] = useState<string>(value);
+    const [serialNumber, setSerialNumber] = useState<string>();
+    const [isValid, setIsValid] = useState<boolean>(false);
+    const [isDisabled, setIsDisabled] = useState<boolean>(false);
     const wrapperTextInputRef = useRef<TouchableOpacity>();
     const textInputRef = useRef<TextInput>();
 
     useEffect(() => {
-        SN_STATE.value = value;
+        updateSN(value);
     }, [value]);
 
     useEffect(() => {
@@ -50,17 +51,23 @@ const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
     }, [textInputRef]);
 
     const changeSerialNumHandler = (val: string) => {
-        setSerialNumber(() => {
-            SN_STATE.value = val;
-            return val;
-        });
+        updateSN(val);
     };
 
-    const completeHandler = () => {
-        onComplete(SN_STATE.value);
+    const updateSN = (value: string) => {
+        SN_STATE.value = value;
+        const _isValid = Boolean(value?.length > 0);
+        const _isDisabled = Boolean(!_isValid || isProgress);
+        setIsValid(_isValid);
+        setIsDisabled(_isDisabled);
+        setSerialNumber(value);
     }
 
-    const isValid = serialNumber !== undefined && serialNumber.length > 0;
+    const completeHandler = () => {
+        if (!!SN_STATE.value) {
+            onComplete(SN_STATE.value);
+        }
+    }
 
     return <>
         <View style={{ marginBottom: 12 }}>
@@ -87,7 +94,7 @@ const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
         </View>
         <SimpleButton style={{ backgroundColor: theme.themes[theme.name].service.button.backgroundColor, minWidth: 180 }}
             textStyle={{ fontSize: 16, color: theme.themes[theme.name].service.button.textColor }}
-            onPress={() => { completeHandler() }} title="Зарегистрировать" disabled={isProgress || !isValid} />
+            onPress={() => { completeHandler() }} title="Зарегистрировать" disabled={isDisabled} />
     </>
 });
 
