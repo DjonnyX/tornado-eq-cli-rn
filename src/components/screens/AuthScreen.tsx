@@ -1,17 +1,15 @@
-import React, { Dispatch, useCallback, useEffect, useRef, useState } from "react";
-import { StackScreenProps } from "@react-navigation/stack";
+import React, { Dispatch, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { Picker } from '@react-native-community/picker';
 import { View, TextInput, Text, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
-import { CommonActions } from "@react-navigation/native";
 import { take, takeUntil } from "rxjs/operators";
 import { IStore } from "@djonnyx/tornado-types";
 import { MainNavigationScreenTypes } from "../navigation";
 import { IAppState } from "../../store/state";
 import { CombinedDataSelectors, SystemSelectors } from "../../store/selectors";
 import { theme } from "../../theme";
-import { NotificationActions } from "../../store/actions";
+import { CapabilitiesActions, NotificationActions } from "../../store/actions";
 import { orderApiService, refApiService } from "../../services";
 import { SystemActions } from "../../store/actions/SystemAction";
 import { SimpleButton } from "../simple";
@@ -31,22 +29,22 @@ const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
     const [serialNumber, setSerialNumber] = useState<string>();
     const [isValid, setIsValid] = useState<boolean>(false);
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
-    const wrapperTextInputRef = useRef<TouchableOpacity>();
-    const textInputRef = useRef<TextInput>();
+    const wrapperTextInputRef = useRef() as RefObject<TouchableOpacity>;
+    const textInputRef = useRef() as RefObject<TextInput>;
 
     useEffect(() => {
         updateSN(value);
     }, [value]);
 
     useEffect(() => {
-        if (!!wrapperTextInputRef) {
-            wrapperTextInputRef.current?.focus();
+        if (!!wrapperTextInputRef && !!wrapperTextInputRef.current) {
+            wrapperTextInputRef.current.focus();
         }
     }, [wrapperTextInputRef]);
 
     const focusHandler = useCallback(() => {
-        if (!!textInputRef) {
-            textInputRef.current?.focus();
+        if (!!textInputRef && !!textInputRef.current) {
+            textInputRef.current.focus();
         }
     }, [textInputRef]);
 
@@ -71,8 +69,8 @@ const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
 
     return <>
         <View style={{ marginBottom: 12 }}>
-            <TouchableOpacity ref={wrapperTextInputRef as any} onFocus={focusHandler}>
-                <TextInput ref={textInputRef as any} keyboardType="number-pad" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
+            <TouchableOpacity ref={wrapperTextInputRef} onFocus={focusHandler}>
+                <TextInput ref={textInputRef} keyboardType="number-pad" placeholderTextColor={theme.themes[theme.name].service.textInput.placeholderColor}
                     selectionColor={theme.themes[theme.name].service.textInput.selectionColor}
                     underlineColorAndroid={isValid
                         ? theme.themes[theme.name].service.textInput.underlineColor
@@ -194,6 +192,7 @@ const FormTParams = React.memo(({ stores, isProgress, onComplete }: IFormTParams
 
 interface IAuthSelfProps {
     // store props
+    _setCurrentScreen: (screen: MainNavigationScreenTypes) => void;
     _onChangeSerialNumber: (serialNumber: string) => void;
     _onChangeSetupStep: (setupStep: number) => void;
     _onChangeTerminalId: (terminalId: string) => void;
@@ -209,10 +208,10 @@ interface IAuthSelfProps {
     // self props
 }
 
-interface IAuthProps extends StackScreenProps<any, MainNavigationScreenTypes.LOADING>, IAuthSelfProps { }
+interface IAuthProps extends IAuthSelfProps { }
 
-const AuthScreenContainer = React.memo(({ _serialNumber, _setupStep, _terminalId, _storeId, navigation,
-    _alertOpen, _onChangeSerialNumber, _onChangeSetupStep, _onChangeTerminalId, _onChangeStoreId,
+const AuthScreenContainer = React.memo(({ _serialNumber, _setupStep, _terminalId, _storeId, _setCurrentScreen,
+    _alertOpen, _onChangeSerialNumber, _onChangeSetupStep, _onChangeTerminalId, _onChangeStoreId, 
 }: IAuthProps) => {
     const [stores, setStores] = useState<Array<IStore>>([]);
     const [isLicenseValid, setLicenseValid] = useState<boolean>(false);
@@ -232,22 +231,15 @@ const AuthScreenContainer = React.memo(({ _serialNumber, _setupStep, _terminalId
                     takeUntil(unsubscribe$),
                 ).subscribe(
                     l => {
-                        setLicenseValid(true);
+                        /*setLicenseValid(true);
 
-                        setShowProgressBar(false);
+                        setShowProgressBar(false);*/
 
                         refApiService.serial = orderApiService.serial = _serialNumber;
                         orderApiService.storeId = _storeId;
 
                         // License valid!
-                        navigation.dispatch(
-                            CommonActions.reset({
-                                index: 1,
-                                routes: [
-                                    { name: MainNavigationScreenTypes.LOADING },
-                                ],
-                            })
-                        );
+                        _setCurrentScreen(MainNavigationScreenTypes.LOADING);
                     },
                     err => {
                         _alertOpen({
@@ -442,6 +434,9 @@ const mapStateToProps = (state: IAppState, ownProps: IAuthProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>): any => {
     return {
+        _setCurrentScreen: (screen: MainNavigationScreenTypes) => {
+            dispatch(CapabilitiesActions.setCurrentScreen(screen));
+        },
         _onChangeSerialNumber: (serialNumber: string) => {
             dispatch(SystemActions.setSerialNumber(serialNumber));
         },

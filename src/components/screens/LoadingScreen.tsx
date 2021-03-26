@@ -1,5 +1,4 @@
 import React, { Dispatch, useEffect } from "react";
-import { StackScreenProps } from "@react-navigation/stack";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { View, Text } from "react-native";
 import { MainNavigationScreenTypes } from "../navigation";
@@ -7,30 +6,23 @@ import { IAppState } from "../../store/state";
 import { connect } from "react-redux";
 import { CombinedDataSelectors } from "../../store/selectors";
 import { theme } from "../../theme";
-import { CommonActions } from "@react-navigation/native";
+import { CapabilitiesActions } from "../../store/actions";
 
 interface ILoadingSelfProps {
   // store props
   _progress: number;
   _loaded: boolean;
+  _setCurrentScreen: (screen: MainNavigationScreenTypes) => void;
 
   // self props
 }
 
-interface ILoadingProps extends StackScreenProps<any, MainNavigationScreenTypes.LOADING>, ILoadingSelfProps { }
+interface ILoadingProps extends ILoadingSelfProps { }
 
-const LoadingScreenContainer = React.memo(({ _progress, _loaded, navigation }: ILoadingProps) => {
+const LoadingScreenContainer = React.memo(({ _progress, _loaded, _setCurrentScreen }: ILoadingProps) => {
   useEffect(() => {
     if (_loaded) {
-      setTimeout(() => {
-        navigation.dispatch(
-          CommonActions.reset({
-            routes: [
-              { name: MainNavigationScreenTypes.ORDERS },
-            ],
-          })
-        );
-      });
+      _setCurrentScreen(MainNavigationScreenTypes.ORDERS);
     }
   }, [_loaded]);
 
@@ -64,7 +56,9 @@ const mapStateToProps = (state: IAppState, ownProps: ILoadingProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>): any => {
   return {
-
+    _setCurrentScreen: (screen: MainNavigationScreenTypes) => {
+      dispatch(CapabilitiesActions.setCurrentScreen(screen));
+    },
   };
 };
 
