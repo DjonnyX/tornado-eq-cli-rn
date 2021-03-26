@@ -19,7 +19,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@djonnyx/tornado-order-refs-processor": "^1.0.7",
+    "@djonnyx/tornado-order-refs-processor": "^1.0.8",
     "@djonnyx/tornado-refs-processor": "^1.2.1",
     "@djonnyx/tornado-types": "^1.4.10",
     "@react-native-community/picker": "^1.8.1",
