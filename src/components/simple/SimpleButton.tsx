@@ -65,7 +65,8 @@ export const SimpleButton = ({ title, style, styleDisabled, textStyle, textStyle
 
     return (
         <DropShadow style={shadow}>
-            <TouchableOpacity ref={ref as any} style={sView} onPress={onPressHandler} onFocus={onFocusHandler} onBlur={onBlurHandler} disabled={disabled}>
+            <TouchableOpacity ref={ref as any} style={sView}
+                onPress={onPressHandler} onFocus={onFocusHandler} onBlur={onBlurHandler} disabled={disabled}>
                 <View
                     style={sLayout}
                 >

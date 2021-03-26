@@ -1,12 +1,10 @@
 import React, { Dispatch } from "react";
-import { StackScreenProps } from "@react-navigation/stack";
 import { View } from "react-native";
 import { connect } from "react-redux";
 import {
     ICompiledLanguage, ICompiledOrder
 } from "@djonnyx/tornado-types";
 import { IAppState } from "../../store/state";
-import { MainNavigationScreenTypes } from "../navigation";
 import { CapabilitiesSelectors, OrdersSelectors } from "../../store/selectors";
 import { theme } from "../../theme";
 import { OrderListContainer } from "../simple/order-list/OrderList";
@@ -19,9 +17,9 @@ interface IOrdersSelfProps {
     // self props
 }
 
-interface IOrdersProps extends StackScreenProps<any, MainNavigationScreenTypes.ORDERS>, IOrdersSelfProps { }
+interface IOrdersProps extends IOrdersSelfProps { }
 
-const OrdersScreenContainer = React.memo(({ _orders, _language, navigation }: IOrdersProps) => {
+const OrdersScreenContainer = React.memo(({ _orders, _language }: IOrdersProps) => {
     return (
         <View style={{
             width: "100%", height: "100%",
