@@ -24,10 +24,10 @@ export const OrderListContainer = React.memo(({ orders, language }: IOrderListPr
 });
 
 const sortByCompleteSortNum = (a: ICompiledOrder, b: ICompiledOrder) => {
-    if (a.completeSortNum > b.completeSortNum) {
+    if (a.completeSortNum < b.completeSortNum) {
         return 1;
     }
-    if (a.completeSortNum < b.completeSortNum) {
+    if (a.completeSortNum > b.completeSortNum) {
         return -1;
     }
     return 0;
