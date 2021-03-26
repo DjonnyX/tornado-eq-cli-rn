@@ -15,8 +15,20 @@ export const OrderListContainer = React.memo(({ orders, language }: IOrderListPr
                 <OrderListColumn title="Готовятся" orders={orders.filter(o => o.status < OrderStatuses.COMPLETE)} language={language} />
             </View>
             <View style={{ flex: 1, height: "100%", overflow: "hidden" }}>
-                <OrderListColumn title="Готовы" orders={orders.filter(o => o.status === OrderStatuses.COMPLETE)} language={language} />
+                <OrderListColumn title="Готовы" orders={
+                    orders.filter(o => o.status === OrderStatuses.COMPLETE).sort(sortByCompleteSortNum)
+                } language={language} />
             </View>
         </View>
     );
-})
+});
+
+const sortByCompleteSortNum = (a: ICompiledOrder, b: ICompiledOrder) => {
+    if (a.completeSortNum < b.completeSortNum) {
+        return 1;
+    }
+    if (a.completeSortNum > b.completeSortNum) {
+        return -1;
+    }
+    return 0;
+};
