@@ -5,12 +5,14 @@ import { GridList } from "../../layouts/GridList";
 import { OrderListItem } from "./OrderListItem";
 
 interface IOrderListProps {
+    columns: number;
+    rows: number;
     title: string;
     language: ICompiledLanguage;
     orders: Array<ICompiledOrder>;
 }
 
-export const OrderListColumn = React.memo(({ title, orders, language }: IOrderListProps) => {
+export const OrderListColumn = React.memo(({ columns, rows, title, orders, language }: IOrderListProps) => {
     return (
         <View style={{ flex: 1, flexDirection: "column", height: "100%", overflow: "hidden" }}>
             <View style={{
@@ -26,7 +28,7 @@ export const OrderListColumn = React.memo(({ title, orders, language }: IOrderLi
             </View>
             <GridList style={{ flex: 1, width: "100%" }}
                 padding={10} spacing={6} data={orders || []}
-                columnsNum={2} minItemHeight={192} renderItem={({ item }) => {
+                columnsNum={columns} rowsNum={rows} renderItem={({ item }) => {
                     return <OrderListItem key={item.data.id} order={item.data} language={language} />
                 }}
                 keyExtractor={(item, index) => item.data.id}>

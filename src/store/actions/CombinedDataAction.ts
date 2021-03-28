@@ -1,15 +1,21 @@
 import { Action } from "redux";
 import { ICompiledData, ICompiledOrderData } from "@djonnyx/tornado-types";
 import { IProgress } from "@djonnyx/tornado-refs-processor/dist/DataCombiner";
+import { ITerminal } from "@djonnyx/tornado-types";
 
 export enum CombinedDataActionTypes {
     SET_DATA = "TORNADO/combined-data/set-data",
+    SET_TERMINAL = "TORNADO/combined-data/set-terminal",
     SET_ORDER_DATA = "TORNADO/combined-data/set-order-data",
     SET_PROGRESS = "TORNADO/combined-data/set-progress",
 }
 
 interface ICombinedDataActionSetData extends Action<CombinedDataActionTypes.SET_DATA> {
     data: ICompiledData | null;
+}
+
+interface ICombinedDataActionSetTerminal extends Action<CombinedDataActionTypes.SET_TERMINAL> {
+    terminal: ITerminal | null;
 }
 
 interface ICombinedOrderDataActionSetData extends Action<CombinedDataActionTypes.SET_ORDER_DATA> {
@@ -26,6 +32,11 @@ export class CombinedDataActions {
         data,
     });
 
+    static setTerminal = (terminal: ITerminal): ICombinedDataActionSetTerminal => ({
+        type: CombinedDataActionTypes.SET_TERMINAL,
+        terminal,
+    });
+
     static setOrdersData = (data: ICompiledOrderData | null): ICombinedOrderDataActionSetData => ({
         type: CombinedDataActionTypes.SET_ORDER_DATA,
         data,
@@ -37,4 +48,5 @@ export class CombinedDataActions {
     });
 }
 
-export type TCombinedDataActions = ICombinedDataActionSetData | ICombinedOrderDataActionSetData | ICombinedDataActionSetProgress;
+export type TCombinedDataActions = ICombinedDataActionSetData | ICombinedDataActionSetTerminal | ICombinedOrderDataActionSetData
+    | ICombinedDataActionSetProgress;
