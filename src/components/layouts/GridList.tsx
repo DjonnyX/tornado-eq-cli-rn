@@ -30,14 +30,14 @@ interface IGridListProps<T = any> {
     padding?: number;
     data: Array<T>;
     columnsNum: number;
-    minItemHeight: number;
+    rowsNum: number;
     spacing?: number;
     renderItem: (data: { item: T, index: number }) => JSX.Element;
     keyExtractor: (item: T, index: number) => number;
 }
 
 export const GridList = React.memo(({ data, renderItem, style, keyExtractor, spacing = 0, padding = 0,
-    columnsNum, minItemHeight }: IGridListProps) => {
+    columnsNum, rowsNum }: IGridListProps) => {
     const [bound, _setBound] = useState<IBound | undefined>(undefined);
     const [stageCalcParams, _setStageCalcParams] = useState<IStatgeCalcParams | undefined>(undefined);
     const [collection, _setCollection] = useState<Array<ICollectionItem>>([]);
@@ -55,7 +55,6 @@ export const GridList = React.memo(({ data, renderItem, style, keyExtractor, spa
     useEffect(() => {
         if (!!bound && padding !== undefined && spacing !== undefined && columnsNum !== undefined) {
             const gap = spacing * 0.5;
-            const rowsNum = Math.floor((bound.height - padding * 2 + gap * 2) / (minItemHeight + gap * 2));
             const itemWidth = Math.floor(bound.width - padding * 2 - columnsNum * gap * 2) / columnsNum;
             const itemHeight = Math.floor(bound.height - padding * 2 + gap * 2 - rowsNum * gap * 2) / rowsNum;
 
