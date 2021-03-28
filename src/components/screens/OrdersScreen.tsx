@@ -2,15 +2,16 @@ import React, { Dispatch } from "react";
 import { View } from "react-native";
 import { connect } from "react-redux";
 import {
-    ICompiledLanguage, ICompiledOrder
+    ICompiledLanguage, ICompiledOrder, ITerminalEQConfig
 } from "@djonnyx/tornado-types";
 import { IAppState } from "../../store/state";
-import { CapabilitiesSelectors, OrdersSelectors } from "../../store/selectors";
+import { CapabilitiesSelectors, CombinedDataSelectors, OrdersSelectors } from "../../store/selectors";
 import { theme } from "../../theme";
 import { OrderListContainer } from "../simple/order-list/OrderList";
 
 interface IOrdersSelfProps {
     // store props
+    _config: ITerminalEQConfig;
     _orders: Array<ICompiledOrder>;
     _language: ICompiledLanguage;
 
@@ -19,13 +20,14 @@ interface IOrdersSelfProps {
 
 interface IOrdersProps extends IOrdersSelfProps { }
 
-const OrdersScreenContainer = React.memo(({ _orders, _language }: IOrdersProps) => {
+const OrdersScreenContainer = React.memo(({ _config, _orders, _language }: IOrdersProps) => {
+    console.warn(_config)
     return (
         <View style={{
             width: "100%", height: "100%",
             backgroundColor: theme.themes[theme.name].intro.background
         }}>
-            <OrderListContainer orders={_orders} language={_language} />
+            <OrderListContainer config={_config} orders={_orders} language={_language} />
         </View >
     );
 });
@@ -33,6 +35,7 @@ const OrdersScreenContainer = React.memo(({ _orders, _language }: IOrdersProps) 
 const mapStateToProps = (state: IAppState, ownProps: IOrdersProps) => {
     return {
         _orders: OrdersSelectors.selectCollection(state),
+        _config: CombinedDataSelectors.selectConfig(state),
         _language: CapabilitiesSelectors.selectLanguage(state),
     };
 };
