@@ -127,7 +127,7 @@ interface IGridListItemProps {
 }
 
 const GridListItem = React.memo(({ data, children }: IGridListItemProps) => {
-    const [animatedY, setAnimatedY] = useState(new Animated.Value(0));
+    const [animatedY, setAnimatedY] = useState(new Animated.Value(data.y + data.height));
 
     useEffect(() => {
         const animationX = Animated.timing(animatedY, {

@@ -4,12 +4,13 @@ import { View, Text } from "react-native";
 import { MainNavigationScreenTypes } from "../navigation";
 import { IAppState } from "../../store/state";
 import { connect } from "react-redux";
-import { CombinedDataSelectors } from "../../store/selectors";
+import { CapabilitiesSelectors, CombinedDataSelectors } from "../../store/selectors";
 import { theme } from "../../theme";
 import { CapabilitiesActions } from "../../store/actions";
 
 interface ILoadingSelfProps {
   // store props
+  _theme: string;
   _progress: number;
   _loaded: boolean;
   _setCurrentScreen: (screen: MainNavigationScreenTypes) => void;
@@ -19,7 +20,7 @@ interface ILoadingSelfProps {
 
 interface ILoadingProps extends ILoadingSelfProps { }
 
-const LoadingScreenContainer = React.memo(({ _progress, _loaded, _setCurrentScreen }: ILoadingProps) => {
+const LoadingScreenContainer = React.memo(({ _theme, _progress, _loaded, _setCurrentScreen }: ILoadingProps) => {
   useEffect(() => {
     if (_loaded) {
       _setCurrentScreen(MainNavigationScreenTypes.ORDERS);
@@ -49,6 +50,7 @@ const LoadingScreenContainer = React.memo(({ _progress, _loaded, _setCurrentScre
 
 const mapStateToProps = (state: IAppState, ownProps: ILoadingProps) => {
   return {
+    _theme: CapabilitiesSelectors.selectTheme(state),
     _progress: CombinedDataSelectors.selectProgress(state),
     _loaded: CombinedDataSelectors.selectLoaded(state),
   };
