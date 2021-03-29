@@ -11,6 +11,7 @@ import { OrderListContainer } from "../simple/order-list/OrderList";
 
 interface IOrdersSelfProps {
     // store props
+    _theme: string;
     _config: ITerminalEQConfig;
     _orders: Array<ICompiledOrder>;
     _language: ICompiledLanguage;
@@ -20,20 +21,20 @@ interface IOrdersSelfProps {
 
 interface IOrdersProps extends IOrdersSelfProps { }
 
-const OrdersScreenContainer = React.memo(({ _config, _orders, _language }: IOrdersProps) => {
+const OrdersScreenContainer = React.memo(({ _theme, _config, _orders, _language }: IOrdersProps) => {
     console.warn(_config)
     return (
         <View style={{
             width: "100%", height: "100%",
-            backgroundColor: theme.themes[theme.name].intro.background
         }}>
-            <OrderListContainer config={_config} orders={_orders} language={_language} />
+            <OrderListContainer themeName={_theme} config={_config} orders={_orders} language={_language} />
         </View >
     );
 });
 
 const mapStateToProps = (state: IAppState, ownProps: IOrdersProps) => {
     return {
+        _theme: CapabilitiesSelectors.selectTheme(state),
         _orders: OrdersSelectors.selectCollection(state),
         _config: CombinedDataSelectors.selectConfig(state),
         _language: CapabilitiesSelectors.selectLanguage(state),
