@@ -2,6 +2,7 @@ import { ICompiledLanguage, ICompiledOrder, ITerminalEQConfig, OrderStatuses } f
 import React from "react";
 import { View } from "react-native";
 import { theme } from "../../../theme";
+import { localize } from "../../../utils/localization";
 import { OrderListColumn } from "./OrderListColumn";
 
 interface IOrderListProps {
@@ -36,7 +37,9 @@ export const OrderListContainer = React.memo(({ themeName, config, orders, langu
                         color: theme.themes[theme.name].orders.new.item.textColor,
                     }}
                     columns={config.layout.new.columns} rows={config.layout.new.rows}
-                    title="Готовятся" orders={orders.filter(o => o.status < OrderStatuses.COMPLETE)} language={language} />
+                    title={
+                        localize(language, "equeue_new_items_title")
+                    } orders={orders.filter(o => o.status < OrderStatuses.COMPLETE)} language={language} />
             </View>
             <View style={{
                 flex: 1, height: "100%", overflow: "hidden",
@@ -59,7 +62,9 @@ export const OrderListContainer = React.memo(({ themeName, config, orders, langu
                         color: theme.themes[theme.name].orders.complete.item.textColor,
                     }}
                     columns={config.layout.complete.columns} rows={config.layout.complete.rows}
-                    title="Готовы" orders={
+                    title={
+                        localize(language, "equeue_ready_items_title")
+                    } orders={
                         orders.filter(o => o.status === OrderStatuses.COMPLETE).sort(sortByCompleteSortNum)
                     } language={language} />
             </View>
