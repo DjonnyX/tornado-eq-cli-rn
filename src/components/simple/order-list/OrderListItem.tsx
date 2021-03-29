@@ -3,13 +3,14 @@ import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
 import { ICompiledLanguage, ICompiledOrder } from "@djonnyx/tornado-types";
 
 interface IOrderListItemProps {
+    themeName: string;
     order: ICompiledOrder;
     language: ICompiledLanguage;
     style: StyleProp<ViewStyle>;
     textStyle: StyleProp<TextStyle>;
 }
 
-export const OrderListItem = React.memo(({ style, textStyle, language, order }: IOrderListItemProps) => {
+export const OrderListItem = React.memo(({ themeName, style, textStyle, language, order }: IOrderListItemProps) => {
     return (
         <View style={{
             flex: 1, width: "100%", height: "100%", justifyContent: "center", alignItems: "center",

@@ -5,12 +5,13 @@ import { theme } from "../../../theme";
 import { OrderListColumn } from "./OrderListColumn";
 
 interface IOrderListProps {
+    themeName: string;
     language: ICompiledLanguage;
     orders: Array<ICompiledOrder>;
     config: ITerminalEQConfig;
 }
 
-export const OrderListContainer = React.memo(({ config, orders, language }: IOrderListProps) => {
+export const OrderListContainer = React.memo(({ themeName, config, orders, language }: IOrderListProps) => {
     return (
         <View style={{ width: "100%", height: "100%", flexDirection: "row" }}>
             <View style={{
@@ -18,6 +19,7 @@ export const OrderListContainer = React.memo(({ config, orders, language }: IOrd
                 backgroundColor: theme.themes[theme.name].orders.new.background,
             }}>
                 <OrderListColumn
+                    themeName={themeName}
                     layoutStyle={{
                         paddingTop: 8, paddingLeft: 8,
                     }}
@@ -41,6 +43,7 @@ export const OrderListContainer = React.memo(({ config, orders, language }: IOrd
                 backgroundColor: theme.themes[theme.name].orders.complete.background,
             }}>
                 <OrderListColumn
+                    themeName={themeName}
                     layoutStyle={{
                         paddingTop: 8, paddingRight: 8,
                     }}

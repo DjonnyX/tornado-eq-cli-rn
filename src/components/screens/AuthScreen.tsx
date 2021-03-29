@@ -7,7 +7,7 @@ import { take, takeUntil } from "rxjs/operators";
 import { IStore } from "@djonnyx/tornado-types";
 import { MainNavigationScreenTypes } from "../navigation";
 import { IAppState } from "../../store/state";
-import { CombinedDataSelectors, SystemSelectors } from "../../store/selectors";
+import { CapabilitiesSelectors, CombinedDataSelectors, SystemSelectors } from "../../store/selectors";
 import { theme } from "../../theme";
 import { CapabilitiesActions, NotificationActions } from "../../store/actions";
 import { orderApiService, refApiService } from "../../services";
@@ -17,6 +17,7 @@ import { IAlertState } from "../../interfaces";
 import { Subject } from "rxjs";
 
 interface IFormSNProps {
+    themeName: string;
     value: string;
     isProgress: boolean;
     onComplete: (value: string) => void;
@@ -25,7 +26,7 @@ interface IFormSNProps {
 const SN_STATE = {
     value: "",
 }
-const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
+const FormSN = React.memo(({ themeName, value, isProgress, onComplete }: IFormSNProps) => {
     const [serialNumber, setSerialNumber] = useState<string>();
     const [isValid, setIsValid] = useState<boolean>(false);
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -97,12 +98,13 @@ const FormSN = React.memo(({ value, isProgress, onComplete }: IFormSNProps) => {
 });
 
 interface IFormTParams {
+    themeName: string;
     stores: Array<IStore>;
     isProgress: boolean;
     onComplete: (terminalName: string, storeId: string) => void;
 }
 
-const FormTParams = React.memo(({ stores, isProgress, onComplete }: IFormTParams) => {
+const FormTParams = React.memo(({ themeName, stores, isProgress, onComplete }: IFormTParams) => {
     const [terminalName, setTerminalName] = useState<string>("");
     const [storeId, setStoreId] = useState<string>("");
     const wrapperTextInputRef = useRef<TouchableOpacity>();
@@ -198,6 +200,7 @@ interface IAuthSelfProps {
     _onChangeTerminalId: (terminalId: string) => void;
     _onChangeStoreId: (storeId: string) => void;
     _alertOpen: (alert: IAlertState) => void;
+    _theme: string;
     _progress: number;
     _serialNumber: string;
     _setupStep: number;
@@ -210,8 +213,8 @@ interface IAuthSelfProps {
 
 interface IAuthProps extends IAuthSelfProps { }
 
-const AuthScreenContainer = React.memo(({ _serialNumber, _setupStep, _terminalId, _storeId, _setCurrentScreen,
-    _alertOpen, _onChangeSerialNumber, _onChangeSetupStep, _onChangeTerminalId, _onChangeStoreId, 
+const AuthScreenContainer = React.memo(({ _theme, _serialNumber, _setupStep, _terminalId, _storeId, _setCurrentScreen,
+    _alertOpen, _onChangeSerialNumber, _onChangeSetupStep, _onChangeTerminalId, _onChangeStoreId,
 }: IAuthProps) => {
     const [stores, setStores] = useState<Array<IStore>>([]);
     const [isLicenseValid, setLicenseValid] = useState<boolean>(false);
@@ -394,36 +397,42 @@ const AuthScreenContainer = React.memo(({ _serialNumber, _setupStep, _terminalId
     }, [_storeId, _terminalId]);
 
     return (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.themes[theme.name].loading.background }}>
+        <>
             {
-                !isLicenseValid &&
-                <>
+                !!_theme &&
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.themes[theme.name].loading.background }}>
                     {
-                        // Enter serial number
-                        _setupStep === 0 &&
-                        <FormSN value={_serialNumber} isProgress={showProgressBar} onComplete={authHandler} />
+                        !isLicenseValid &&
+                        <>
+                            {
+                                // Enter serial number
+                                _setupStep === 0 &&
+                                <FormSN themeName={_theme} value={_serialNumber} isProgress={showProgressBar} onComplete={authHandler} />
+                            }
+                            {
+                                // Enter terminal name and store
+                                _setupStep === 1 &&
+                                <FormTParams themeName={_theme} stores={stores} isProgress={showProgressBar} onComplete={saveParamsHandler} />
+                            }
+                        </>
                     }
                     {
-                        // Enter terminal name and store
-                        _setupStep === 1 &&
-                        <FormTParams stores={stores} isProgress={showProgressBar} onComplete={saveParamsHandler} />
+                        !!showProgressBar &&
+                        <ProgressBar
+                            style={{ width: "100%", marginTop: 12, maxWidth: 140, marginLeft: "10%", marginRight: "10%" }}
+                            styleAttr="Horizontal"
+                            indeterminate={true}
+                            color={theme.themes[theme.name].loading.progressBar.trackColor}></ProgressBar>
                     }
-                </>
+                </View>
             }
-            {
-                !!showProgressBar &&
-                <ProgressBar
-                    style={{ width: "100%", marginTop: 12, maxWidth: 140, marginLeft: "10%", marginRight: "10%" }}
-                    styleAttr="Horizontal"
-                    indeterminate={true}
-                    color={theme.themes[theme.name].loading.progressBar.trackColor}></ProgressBar>
-            }
-        </View>
+        </>
     );
 });
 
 const mapStateToProps = (state: IAppState, ownProps: IAuthProps) => {
     return {
+        _theme: CapabilitiesSelectors.selectTheme(state),
         _progress: CombinedDataSelectors.selectProgress(state),
         _serialNumber: SystemSelectors.selectSerialNumber(state),
         _setupStep: SystemSelectors.selectSetupStep(state),

@@ -5,6 +5,7 @@ import { GridList } from "../../layouts/GridList";
 import { OrderListItem } from "./OrderListItem";
 
 interface IOrderListProps {
+    themeName: string;
     columns: number;
     rows: number;
     title: string;
@@ -17,7 +18,7 @@ interface IOrderListProps {
     itemTextStyle: StyleProp<TextStyle>;
 }
 
-export const OrderListColumn = React.memo(({ columns, rows, title, orders, language, layoutStyle, headerStyle, headerTextStyle,
+export const OrderListColumn = React.memo(({ themeName, columns, rows, title, orders, language, layoutStyle, headerStyle, headerTextStyle,
     itemStyle, itemTextStyle }: IOrderListProps) => {
     return (
         <View style={{ flex: 1, flexDirection: "column", height: "100%", overflow: "hidden" }}>
@@ -36,7 +37,8 @@ export const OrderListColumn = React.memo(({ columns, rows, title, orders, langu
                 <GridList style={{ flex: 1, width: "100%" }}
                     padding={2} spacing={10} data={orders || []}
                     columnsNum={columns} rowsNum={rows} renderItem={({ item }) => {
-                        return <OrderListItem key={item.data.id} style={itemStyle} textStyle={itemTextStyle}
+                        return <OrderListItem key={item.data.id}
+                            themeName={themeName} style={itemStyle} textStyle={itemTextStyle}
                             order={item.data} language={language} />
                     }}
                     keyExtractor={(item, index) => item.data.id}>
