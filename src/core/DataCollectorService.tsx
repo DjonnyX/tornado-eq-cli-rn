@@ -17,6 +17,7 @@ import { CombinedDataActions, CapabilitiesActions, OrdersActions } from "../stor
 import { IProgress } from "@djonnyx/tornado-refs-processor/dist/DataCombiner";
 import { CapabilitiesSelectors, OrdersSelectors, SystemSelectors } from "../store/selectors";
 import { MainNavigationScreenTypes } from "../components/navigation";
+import { theme } from "../theme";
 
 interface IDataCollectorServiceProps {
     // store
@@ -230,6 +231,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
             dispatch(CapabilitiesActions.setOrderType(data.refs.defaultOrderType));
         },
         _onChangeTerminal: (terminal: ITerminal) => {
+            theme.name = terminal.config.theme;
+            dispatch(CapabilitiesActions.setTheme(terminal.config.theme));
+
             dispatch(CombinedDataActions.setTerminal(terminal));
         },
         _onChangeOrders: (data: ICompiledOrderData, version: number) => {
