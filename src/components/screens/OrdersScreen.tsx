@@ -25,7 +25,6 @@ const OrdersScreenContainer = React.memo(({ _config, _orders, _language }: IOrde
     return (
         <View style={{
             width: "100%", height: "100%",
-            backgroundColor: theme.themes[theme.name].intro.background
         }}>
             <OrderListContainer config={_config} orders={_orders} language={_language} />
         </View >
