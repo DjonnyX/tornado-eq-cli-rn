@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { BehaviorSubject, forkJoin, of, Subject } from "rxjs";
 import { take, takeUntil, filter } from "rxjs/operators";
 import {
-    IAsset, ICompiledData, ICompiledOrder, ICompiledOrderData, ICompiledOrderType, ICompiledProduct, ICurrency, IRefs,
+    IAsset, ICompiledData, ICompiledOrder, ICompiledOrderData, ICompiledOrderType, ICompiledProduct, ICurrency, IEQueueTheme,
     ITerminal,
     RefTypes
 } from "@djonnyx/tornado-types";
@@ -11,17 +11,19 @@ import { IAssetsStoreResult } from "@djonnyx/tornado-assets-store";
 import { DataCombiner as MenuDataCombiner } from "@djonnyx/tornado-refs-processor";
 import { DataCombiner as OrderDataCombiner } from "@djonnyx/tornado-order-refs-processor";
 import { config } from "../Config";
-import { orderApiService, refApiService } from "../services";
+import { assetsService, orderApiService, refApiService } from "../services";
 import { IAppState } from "../store/state";
 import { CombinedDataActions, CapabilitiesActions, OrdersActions } from "../store/actions";
 import { IProgress } from "@djonnyx/tornado-refs-processor/dist/DataCombiner";
 import { CapabilitiesSelectors, OrdersSelectors, SystemSelectors } from "../store/selectors";
 import { MainNavigationScreenTypes } from "../components/navigation";
-import { theme } from "../theme";
+import { compileThemes, theme, THEMES_FILE_NAME } from "../theme";
+import { ExternalStorage } from "../native";
 
 interface IDataCollectorServiceProps {
     // store
     _onChangeOrders: (data: ICompiledOrderData, version: number) => void;
+    _onChangeThemes: (theme: IEQueueTheme) => void;
     _onChangeTerminal: (terminal: ITerminal) => void;
     _onChangeMenu: (data: ICompiledData) => void;
     _onProgress: (progress: IProgress) => void;
@@ -58,7 +60,46 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
         super(props);
     }
 
-    async componentDidMount() {
+    async componentDidMount() {let userDataPath: string | undefined = undefined;
+        try {
+            const isStorageAvailable = await ExternalStorage.isStorageAvailable();
+            const isStorageWritable = await ExternalStorage.isStorageWritable();
+
+            if (isStorageAvailable && !isStorageWritable) {
+                userDataPath = await ExternalStorage.getPath();
+            }
+        } catch (err) {
+            console.warn(err);
+            return;
+        }
+
+        const storePath = `${userDataPath}/assets`;
+
+        try {
+            if (!await assetsService.exists(storePath)) {
+                await assetsService.mkdir(storePath);
+            }
+        } catch (err) {
+            console.warn(err, storePath);
+        }
+
+        let savedThemes: IEQueueTheme | undefined;
+        try {
+            savedThemes = await assetsService.readFile(`${storePath}/${THEMES_FILE_NAME}`);
+        } catch (err) {
+            console.warn("Saved data not found.");
+        }
+
+        if (!!savedThemes) {
+            // Saved
+            theme.name = savedThemes.name;
+            theme.themes = savedThemes.themes;
+            this.props._onChangeThemes(savedThemes);
+        } else {
+            // Embeded
+            this.props._onChangeThemes(theme);
+        }
+
         this._orderDataCombiner = new OrderDataCombiner({
             getRefs: () => ({
                 products: this._menuRefs?.refs.products as Array<ICompiledProduct>,
@@ -125,6 +166,16 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
 
                 const terminal = data.refs.__raw.terminals.find(t => t.id === this.props._terminalId);
                 if (!!terminal) {
+                    const themes: IEQueueTheme | undefined = data.refs.themes?.length > 0 ? compileThemes(data.refs.themes, terminal.config.theme) : undefined;
+                    assetsService.writeFile(`${storePath}/${THEMES_FILE_NAME}`, themes);
+
+                    // Override embeded themes
+                    theme.name = terminal.config.theme;
+                    if (!!themes) {
+                        theme.themes = themes.themes;
+                        this.props._onChangeThemes(themes);
+                    }
+
                     this.props._onChangeTerminal(terminal);
                 }
             },
@@ -172,6 +223,7 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
                     RefTypes.LANGUAGES,
                     RefTypes.TRANSLATIONS,
                     RefTypes.TERMINALS,
+                    RefTypes.THEMES,
                 ],
             });
         });
@@ -230,10 +282,10 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
             dispatch(CapabilitiesActions.setLanguage(data.refs.defaultLanguage));
             dispatch(CapabilitiesActions.setOrderType(data.refs.defaultOrderType));
         },
+        _onChangeThemes: (themes: IEQueueTheme) => {
+            dispatch(CapabilitiesActions.setThemes(themes));
+        },
         _onChangeTerminal: (terminal: ITerminal) => {
-            theme.name = terminal.config.theme;
-            dispatch(CapabilitiesActions.setTheme(terminal.config.theme));
-
             dispatch(CombinedDataActions.setTerminal(terminal));
         },
         _onChangeOrders: (data: ICompiledOrderData, version: number) => {
