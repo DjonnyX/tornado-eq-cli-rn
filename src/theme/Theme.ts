@@ -1,9 +1,27 @@
-import { IEQueueTheme } from "@djonnyx/tornado-types";
+import { IAppTheme, IEQueueTheme, IEQueueThemeColors } from "@djonnyx/tornado-types";
 
+export const THEMES_FILE_NAME = "themes.json";
+
+export const compileThemes = (themes: Array<IAppTheme<IEQueueThemeColors>>, name: string): IEQueueTheme => {
+    const result: IEQueueTheme = {
+        name,
+        themes: {},
+    };
+
+    themes.forEach(t => {
+        result.themes[t.id!] = t.data;
+    });
+
+    return result;
+}
+
+/**
+ * Embeded theme
+ */
 export const theme: IEQueueTheme = {
-    name: "light",
+    name: "embeded",
     themes: {
-        ["light"]: {
+        ["embeded"]: {
             common: {
                 modal: {
                     background: "#e3e3e3",

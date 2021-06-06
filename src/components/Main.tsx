@@ -1,9 +1,9 @@
-import React, { Dispatch, useCallback, useEffect, useRef } from "react";
+import React, { Dispatch, useEffect } from "react";
 import { StatusBar } from "react-native";
 import { connect } from "react-redux";
 import { CapabilitiesActions } from "../store/actions";
 import {
-    AlertService, AuthService, DataCollectorService, NavigationService, SnackService
+    AlertService, AuthService, DataCollectorService, SnackService
 } from "../core";
 import { MainNavigationScreenTypes } from "./navigation";
 import { IAppState } from "../store/state";
