@@ -3,7 +3,7 @@ import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { Picker } from '@react-native-community/picker';
 import { View, TextInput, Text, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
-import { take, takeUntil } from "rxjs/operators";
+import { switchMap, take, takeUntil } from "rxjs/operators";
 import { IStore } from "@djonnyx/tornado-types";
 import { MainNavigationScreenTypes } from "../navigation";
 import { IAppState } from "../../store/state";
@@ -14,7 +14,7 @@ import { orderApiService, refApiService } from "../../services";
 import { SystemActions } from "../../store/actions/SystemAction";
 import { SimpleButton } from "../simple";
 import { IAlertState } from "../../interfaces";
-import { Subject } from "rxjs";
+import { interval, Subject } from "rxjs";
 
 interface IFormSNProps {
     themeName: string;
@@ -279,6 +279,26 @@ const AuthScreenContainer = React.memo(({ _theme, _serialNumber, _setupStep, _te
 
     useEffect(() => {
         const unsubscribe$ = new Subject<void>();
+
+        const getStoresInterval = () => {
+            interval(5000).pipe(
+                take(1),
+                takeUntil(unsubscribe$),
+                switchMap(_ => {
+                    return refApiService.getStores({
+                        serial: _serialNumber,
+                    }).pipe(
+                        take(1),
+                        takeUntil(unsubscribe$),
+                    )
+                })
+            ).subscribe(
+                v => {
+                    setStores(v);
+                    getStoresInterval();
+                }
+            );
+        };
 
         if (_setupStep === 1) {
             refApiService.getStores({
