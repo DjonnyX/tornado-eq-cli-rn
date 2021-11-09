@@ -1,21 +1,21 @@
-import React, { Dispatch, useCallback, useEffect, useState } from "react";
-import { StackScreenProps } from "@react-navigation/stack";
+import React, { Dispatch, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { Picker } from '@react-native-community/picker';
-import { View, TextInput, Text } from "react-native";
+import { View, TextInput, Text, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
-import { CommonActions } from "@react-navigation/native";
 import { switchMap, take, takeUntil } from "rxjs/operators";
 import { IEQueueTheme, IEQueueThemeColors, IStore } from "@djonnyx/tornado-types";
 import { MainNavigationScreenTypes } from "../navigation";
 import { IAppState } from "../../store/state";
-import { CombinedDataSelectors, CapabilitiesSelectors, SystemSelectors } from "../../store/selectors";
+import { CapabilitiesSelectors, CombinedDataSelectors, SystemSelectors } from "../../store/selectors";
 import { NotificationActions } from "../../store/actions";
 import { orderApiService, refApiService } from "../../services";
 import { SystemActions } from "../../store/actions/SystemAction";
-import { SimpleSystemButton } from "../simple";
+import { SimpleButton } from "../simple";
 import { IAlertState } from "../../interfaces";
 import { interval, Subject } from "rxjs";
+import { StackScreenProps } from "@react-navigation/stack";
+import { CommonActions } from "@react-navigation/native";
 
 interface IFormSNProps {
     theme: IEQueueThemeColors;
@@ -27,55 +27,74 @@ interface IFormSNProps {
 const SN_STATE = {
     value: "",
 }
-
 const FormSN = React.memo(({ theme, value, isProgress, onComplete }: IFormSNProps) => {
-    const [serialNumber, setSerialNumber] = useState<string>(value);
+    const [serialNumber, setSerialNumber] = useState<string>();
+    const [isValid, setIsValid] = useState<boolean>(false);
+    const [isDisabled, setIsDisabled] = useState<boolean>(false);
+    const wrapperTextInputRef = useRef() as RefObject<TouchableOpacity>;
+    const textInputRef = useRef() as RefObject<TextInput>;
 
     useEffect(() => {
-        SN_STATE.value = value;
+        updateSN(value);
     }, [value]);
 
+    useEffect(() => {
+        if (!!wrapperTextInputRef && !!wrapperTextInputRef.current) {
+            wrapperTextInputRef.current.focus();
+        }
+    }, [wrapperTextInputRef]);
+
+    const focusHandler = useCallback(() => {
+        if (!!textInputRef && !!textInputRef.current) {
+            textInputRef.current.focus();
+        }
+    }, [textInputRef]);
+
     const changeSerialNumHandler = (val: string) => {
-        setSerialNumber(() => {
-            SN_STATE.value = val;
-            return val;
-        });
+        updateSN(val);
     };
 
-    const completeHandler = () => {
-        onComplete(SN_STATE.value);
+    const updateSN = (value: string) => {
+        SN_STATE.value = value;
+        const _isValid = Boolean(value?.length > 0);
+        const _isDisabled = Boolean(!_isValid || isProgress);
+        setIsValid(_isValid);
+        setIsDisabled(_isDisabled);
+        setSerialNumber(value);
     }
 
-    const isValid = serialNumber !== undefined && serialNumber.length > 0;
-    return <>
-        {
-            !!theme &&
-            <>
-                <View style={{ marginBottom: 12 }}>
-                    <TextInput keyboardType="number-pad" placeholderTextColor={theme.service.textInput.placeholderColor}
-                        selectionColor={theme.service.textInput.selectionColor}
-                        underlineColorAndroid={isValid
-                            ? theme.service.textInput.underlineColor
-                            : theme.service.textInput.underlineWrongColor
-                        }
-                        style={{
-                            fontSize: theme.service.textInput.textFontSize,
-                            textAlign: "center", color: theme.service.textInput.textColor,
-                            minWidth: 140, marginBottom: 12
-                        }} editable={!isProgress}
-                        placeholder="Серийный ключ" onChangeText={changeSerialNumHandler} value={serialNumber} />
-                    {
-                        !isValid &&
-                        <Text style={{ fontSize: theme.service.errorLabel.textFontSize, color: theme.service.errorLabel.textColor }}>
-                            * Обязательное поле
-                        </Text>
-                    }
-                </View>
-                <SimpleSystemButton style={{ backgroundColor: theme.service.button.backgroundColor, minWidth: 180 }}
-                    textStyle={{ fontSize: theme.service.button.textFontSize, color: theme.service.button.textColor }}
-                    onPress={() => { completeHandler() }} title="Зарегистрировать" disabled={isProgress || !isValid} />
-            </>
+    const completeHandler = () => {
+        if (!!SN_STATE.value) {
+            onComplete(SN_STATE.value);
         }
+    }
+
+    return <>
+        <View style={{ marginBottom: 12 }}>
+            <TouchableOpacity ref={wrapperTextInputRef} onFocus={focusHandler}>
+                <TextInput ref={textInputRef} keyboardType="number-pad" placeholderTextColor={theme.service.textInput.placeholderColor}
+                    selectionColor={theme.service.textInput.selectionColor}
+                    underlineColorAndroid={isValid
+                        ? theme.service.textInput.underlineColor
+                        : theme.service.textInput.underlineWrongColor
+                    }
+                    style={{
+                        fontSize: theme.service.textInput.textFontSize,
+                        textAlign: "center", color: theme.service.textInput.textColor,
+                        minWidth: 140, marginBottom: 12
+                    }} editable={!isProgress}
+                    placeholder="Серийный ключ" onChangeText={changeSerialNumHandler} value={serialNumber} />
+            </TouchableOpacity>
+            {
+                !isValid &&
+                <Text style={{ fontSize: 12, color: theme.service.errorLabel.textColor }}>
+                    * Обязательное поле
+                </Text>
+            }
+        </View>
+        <SimpleButton style={{ backgroundColor: theme.service.button.backgroundColor, minWidth: 180 }}
+            textStyle={{ fontSize: theme.service.button.textFontSize, color: theme.service.button.textColor }}
+            onPress={() => { completeHandler() }} title="Зарегистрировать" disabled={isDisabled} />
     </>
 });
 
@@ -89,6 +108,8 @@ interface IFormTParams {
 const FormTParams = React.memo(({ theme, stores, isProgress, onComplete }: IFormTParams) => {
     const [terminalName, setTerminalName] = useState<string>("");
     const [storeId, setStoreId] = useState<string>("");
+    const wrapperTextInputRef = useRef<TouchableOpacity>();
+    const textInputRef = useRef<TextInput>();
 
     const changeTerminalNameHandler = (val: string) => {
         setTerminalName(val);
@@ -98,70 +119,86 @@ const FormTParams = React.memo(({ theme, stores, isProgress, onComplete }: IForm
         onComplete(terminalName, storeId);
     }
 
+    useEffect(() => {
+        if (!!wrapperTextInputRef) {
+            wrapperTextInputRef.current?.focus();
+        }
+    }, [wrapperTextInputRef]);
+
+    const focusHandler = useCallback(() => {
+        if (!!textInputRef) {
+            textInputRef.current?.focus();
+        }
+    }, [textInputRef]);
+
     const isTerminalNameValid = terminalName !== undefined && terminalName.length > 0;
     const isStoreIdValid = storeId !== undefined && storeId.length > 1;
     const isStep2Valid = isTerminalNameValid && isStoreIdValid;
-    return <>
-        {
-            !!theme &&
-            <>
-                <View style={{ marginBottom: 12 }}>
-                    <TextInput keyboardType="default" placeholderTextColor={theme.service.textInput.placeholderColor}
-                        selectionColor={theme.service.textInput.selectionColor}
-                        underlineColorAndroid={isTerminalNameValid
-                            ? theme.service.textInput.underlineColor
-                            : theme.service.textInput.underlineWrongColor
-                        }
-                        style={{
-                            fontSize: theme.service.textInput.textFontSize,
-                            textAlign: "center", color: theme.service.textInput.textColor,
-                            minWidth: 180
-                        }} editable={!isProgress}
-                        placeholder="Название терминала" onChangeText={changeTerminalNameHandler} value={terminalName} />
-                    {
-                        !isTerminalNameValid &&
-                        <Text style={{ fontSize: theme.service.errorLabel.textFontSize, color: theme.service.errorLabel.textColor }}>
-                            * Обязательное поле
-                        </Text>
-                    }
-                </View>
-                <View style={{ marginBottom: 12 }}>
-                    <Picker
-                        mode="dropdown"
-                        selectedValue={storeId}
-                        style={{
-                            fontSize: theme.service.picker.textFontSize,
-                            textAlign: "center", minWidth: 180,
-                            color: isStoreIdValid
-                                ? theme.service.picker.textColor
-                                : theme.service.textInput.placeholderColor,
-                        }}
-                        onValueChange={(itemValue, itemIndex) => {
-                            if (itemIndex > 0) {
-                                setStoreId(String(itemValue));
-                            }
-                        }}
-                    >
-                        <Picker.Item key="placeholder" color={theme.service.picker.placeholderColor} value=""
-                            label='Выберите магазин' />
+    return (
+        <>
+            {
+                !!theme &&
+                <>
+                    <View style={{ marginBottom: 12 }}>
+                        <TouchableOpacity ref={wrapperTextInputRef as any} onFocus={focusHandler}>
+                            <TextInput ref={textInputRef as any} keyboardType="default" placeholderTextColor={theme.service.textInput.placeholderColor}
+                                selectionColor={theme.service.textInput.selectionColor}
+                                underlineColorAndroid={isTerminalNameValid
+                                    ? theme.service.textInput.underlineColor
+                                    : theme.service.textInput.underlineWrongColor
+                                }
+                                style={{
+                                    fontSize: theme.service.textInput.textFontSize,
+                                    textAlign: "center", color: theme.service.textInput.textColor,
+                                    minWidth: 180
+                                }} editable={!isProgress}
+                                placeholder="Название терминала" onChangeText={changeTerminalNameHandler} value={terminalName} />
+                        </TouchableOpacity>
                         {
-                            stores.map(store => <Picker.Item key={store.id} color="black" label={store.name} value={store.id || ""} />)
-
+                            !isTerminalNameValid &&
+                            <Text style={{ fontSize: theme.service.errorLabel.textFontSize, color: theme.service.errorLabel.textColor }}>
+                                * Обязательное поле
+                            </Text>
                         }
-                    </Picker>
-                    {
-                        !isStoreIdValid &&
-                        <Text style={{ fontSize: theme.service.errorLabel.textFontSize, color: theme.service.errorLabel.textColor }}>
-                            * Обязательное поле
-                        </Text>
-                    }
-                </View>
-                <SimpleSystemButton style={{ backgroundColor: theme.service.button.backgroundColor, minWidth: 180 }}
-                    textStyle={{ fontSize: theme.service.button.textFontSize, color: theme.service.button.textColor }}
-                    onPress={completeHandler} title="Сохранить" disabled={isProgress || !isStep2Valid} />
-            </>
-        }
-    </>
+                    </View>
+                    <View style={{ marginBottom: 12 }}>
+                        <Picker
+                            mode="dropdown"
+                            selectedValue={storeId}
+                            style={{
+                                fontSize: theme.service.picker.textFontSize,
+                                textAlign: "center", minWidth: 180,
+                                color: isStoreIdValid
+                                    ? theme.service.picker.textColor
+                                    : theme.service.textInput.placeholderColor,
+                            }}
+                            onValueChange={(itemValue, itemIndex) => {
+                                if (itemIndex > 0) {
+                                    setStoreId(String(itemValue));
+                                }
+                            }}
+                        >
+                            <Picker.Item key="placeholder" color={theme.service.picker.placeholderColor} value=""
+                                label='Выберите магазин' />
+                            {
+                                stores.map(store => <Picker.Item key={store.id} color="black" label={store.name} value={store.id || ""} />)
+
+                            }
+                        </Picker>
+                        {
+                            !isStoreIdValid &&
+                            <Text style={{ fontSize: theme.service.errorLabel.textFontSize, color: theme.service.errorLabel.textColor }}>
+                                * Обязательное поле
+                            </Text>
+                        }
+                    </View>
+                    <SimpleButton style={{ backgroundColor: theme.service.button.backgroundColor, minWidth: 180 }}
+                        textStyle={{ fontSize: theme.service.button.textFontSize, color: theme.service.button.textColor }}
+                        onPress={completeHandler} title="Сохранить" disabled={isProgress || !isStep2Valid} />
+                </>
+            }
+        </>
+    )
 })
 
 interface IAuthSelfProps {
@@ -210,7 +247,6 @@ const AuthScreenContainer = React.memo(({ _theme, _serialNumber, _setupStep, _te
                         setShowProgressBar(false);
 
                         refApiService.serial = orderApiService.serial = _serialNumber;
-
                         orderApiService.storeId = _storeId;
 
                         // License valid!

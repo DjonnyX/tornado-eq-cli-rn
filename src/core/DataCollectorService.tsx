@@ -166,14 +166,11 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
                 const terminal = data.refs.__raw.terminals.find(t => t.id === this.props._terminalId);
                 if (!!terminal) {
                     const themes: IEQueueTheme | undefined = data.refs.themes?.length > 0 ? compileThemes(data.refs.themes, terminal.config.theme) : undefined;
+                    
                     // Override embeded themes
                     if (!!themes) {
-                        const theme = {
-                            name: terminal.config.theme,
-                            themes: themes.themes,
-                        }
-                        this.props._onChangeThemes(theme);
-                        assetsService.writeFile(`${storePath}/${THEMES_FILE_NAME}`, theme);
+                        this.props._onChangeThemes(themes);
+                        assetsService.writeFile(`${storePath}/${THEMES_FILE_NAME}`, themes);
                     }
 
                     this.props._onChangeTerminal(terminal);

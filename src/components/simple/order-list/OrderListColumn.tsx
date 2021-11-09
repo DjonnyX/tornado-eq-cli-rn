@@ -21,30 +21,34 @@ interface IOrderListProps {
 export const OrderListColumn = React.memo(({ theme, columns, rows, title, orders, language, layoutStyle, headerStyle, headerTextStyle,
     itemStyle, itemTextStyle }: IOrderListProps) => {
     return (
-        !!theme &&
-        <View style={{ flex: 1, flexDirection: "column", height: "100%", overflow: "hidden" }}>
-            <View style={{
-                height: 92, padding: 20, justifyContent: "center", alignItems: "center",
-                ...headerStyle as any,
-            }}>
-                <Text style={{
-                    fontWeight: "bold", textTransform: "uppercase",
-                    fontSize: 44, fontFamily: "roboto", ...headerTextStyle as any,
-                }}>
-                    {title}
-                </Text>
-            </View>
-            <View style={{ flex: 1, width: "100%", ...layoutStyle as any }}>
-                <GridList style={{ flex: 1, width: "100%" }}
-                    padding={2} spacing={10} data={orders || []}
-                    columnsNum={columns} rowsNum={rows} renderItem={({ item }) => {
-                        return <OrderListItem key={item.data.id}
-                            theme={theme} style={itemStyle} textStyle={itemTextStyle}
-                            order={item.data} language={language} />
-                    }}
-                    keyExtractor={(item, index) => item.data.id}>
-                </GridList>
-            </View>
-        </View>
+        <>
+            {
+                !!theme &&
+                <View style={{ flex: 1, flexDirection: "column", height: "100%", overflow: "hidden" }}>
+                    <View style={{
+                        height: 92, padding: 20, justifyContent: "center", alignItems: "center",
+                        ...headerStyle as any,
+                    }}>
+                        <Text style={{
+                            fontWeight: "bold", textTransform: "uppercase",
+                            fontSize: 44, fontFamily: "roboto", ...headerTextStyle as any,
+                        }}>
+                            {title}
+                        </Text>
+                    </View>
+                    <View style={{ flex: 1, width: "100%", ...layoutStyle as any }}>
+                        <GridList style={{ flex: 1, width: "100%" }}
+                            padding={2} spacing={10} data={orders || []}
+                            columnsNum={columns} rowsNum={rows} renderItem={({ item }) => {
+                                return <OrderListItem key={item.data.id}
+                                    theme={theme} style={itemStyle} textStyle={itemTextStyle}
+                                    order={item.data} language={language} />
+                            }}
+                            keyExtractor={(item, index) => item.data.id}>
+                        </GridList>
+                    </View>
+                </View>
+            }
+        </>
     );
 })

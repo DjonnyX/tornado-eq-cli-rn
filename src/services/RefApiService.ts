@@ -341,7 +341,7 @@ class RefApiService implements IDataService<IEQueueTheme> {
             from(this.getAccessToken()).pipe(
                 switchMap(token => {
                     return from(
-                        fetch(`${config.refServer.address}/api/v1/terminals?type=${TerminalTypes.EQUEUE}`,
+                        fetch(`${config.refServer.address}/api/v1/terminals?type.equals=${TerminalTypes.EQUEUE}`,
                             {
                                 method: "GET",
                                 headers: {
@@ -366,7 +366,7 @@ class RefApiService implements IDataService<IEQueueTheme> {
                 from(this.getAccessToken()).pipe(
                     switchMap(token => {
                         return from(
-                            fetch(`${config.refServer.address}/api/v1/app-themes?type=${TerminalTypes.KIOSK}`,
+                            fetch(`${config.refServer.address}/api/v1/app-themes?type.equals=${TerminalTypes.EQUEUE}`,
                                 {
                                     method: "GET",
                                     headers: {

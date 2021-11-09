@@ -3,11 +3,8 @@ package com.tornadoeq.utils;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.util.Base64;
-import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -16,26 +13,11 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.Date;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 public class AuthStoreModule extends ReactContextBaseJavaModule {
 
@@ -65,8 +47,8 @@ public class AuthStoreModule extends ReactContextBaseJavaModule {
             promise.reject(e);
             return;
         }
-        
-        String imei = this.getDeviceIMEI();
+
+        String imei = this.getDeviceID();
         String keyHash = this.MD5(serial);
         String token = Jwts.builder()
                 .setHeaderParam("type", "JWT")
@@ -100,23 +82,20 @@ public class AuthStoreModule extends ReactContextBaseJavaModule {
      *
      * @return unique identifier for the device
      */
-    public String getDeviceIMEI() {
-        String deviceId;
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            deviceId = Settings.Secure.getString(
-                    this.reactContext.getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
-        } else {
-            if (ActivityCompat.checkSelfPermission(this.reactContext, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                TelephonyManager telephonyMgr = (TelephonyManager) this.reactContext.getSystemService(Context.TELEPHONY_SERVICE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    deviceId = telephonyMgr.getImei();
-                } else {
-                    deviceId = telephonyMgr.getDeviceId();
-                }
+    public String getDeviceID() {
+        String deviceId = null;
+
+        if (ActivityCompat.checkSelfPermission(this.reactContext, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            TelephonyManager telephonyMgr = (TelephonyManager) this.reactContext.getSystemService(Context.TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                deviceId = telephonyMgr.getImei();
             } else {
-                deviceId = Settings.Secure.getString(this.reactContext.getContentResolver(), Settings.Secure.ANDROID_ID);;
+                deviceId = telephonyMgr.getDeviceId();
             }
+        }
+
+        if (deviceId == null) {
+            deviceId = Settings.Secure.getString(this.reactContext.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         return deviceId;
     }

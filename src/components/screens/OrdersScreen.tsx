@@ -21,14 +21,18 @@ interface IOrdersSelfProps {
 interface IOrdersProps extends IOrdersSelfProps { }
 
 const OrdersScreenContainer = React.memo(({ _theme, _config, _orders, _language }: IOrdersProps) => {
-    const theme = !!_theme ? _theme?.themes?.[_theme?.name] : undefined;
+    const theme = _theme?.themes?.[_theme?.name];
     return (
-        !!theme &&
-        <View style={{
-            width: "100%", height: "100%",
-        }}>
-            <OrderListContainer theme={theme} config={_config} orders={_orders} language={_language} />
-        </View >
+        <>
+            {
+                !!theme &&
+                <View style={{
+                    width: "100%", height: "100%",
+                }}>
+                    <OrderListContainer theme={theme} config={_config} orders={_orders} language={_language} />
+                </View >
+            }
+        </>
     );
 });
 

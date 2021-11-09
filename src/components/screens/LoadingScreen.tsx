@@ -35,27 +35,31 @@ const LoadingScreenContainer = React.memo(({ _theme, _progress, _loaded, navigat
     }
   }, [_loaded]);
 
-  const theme = !!_theme ? _theme?.themes?.[_theme?.name] : undefined;
+  const theme = _theme?.themes?.[_theme?.name];
 
   return (
-    !!theme &&
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.loading.backgroundColor }}>
-      <ProgressBar
-        style={{ width: "100%", maxWidth: 200, marginLeft: "10%", marginRight: "10%" }}
-        styleAttr="Horizontal"
-        progress={_progress / 100}
-        indeterminate={_progress === 1 || _progress === 0}
-        color={theme.loading.progressBar.trackColor}></ProgressBar>
-      <Text style={{ color: theme.loading.progressBar.textColor, fontSize: theme.loading.progressBar.textFontSize }}>
-        {
-          _progress > 0
-            ?
-            `${_progress}%`
-            :
-            "loading..."
-        }
-      </Text>
-    </View>
+    <>
+      {
+        !!theme &&
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.loading.backgroundColor }}>
+          <ProgressBar
+            style={{ width: "100%", maxWidth: 200, marginLeft: "10%", marginRight: "10%" }}
+            styleAttr="Horizontal"
+            progress={_progress / 100}
+            indeterminate={_progress === 100 || _progress === 0}
+            color={theme.loading.progressBar.trackColor}></ProgressBar>
+          <Text style={{ color: theme.loading.progressBar.textColor, fontSize: theme.loading.progressBar.textFontSize }}>
+            {
+              _progress > 0
+                ?
+                `${_progress}%`
+                :
+                "loading..."
+            }
+          </Text>
+        </View>
+      }
+    </>
   );
 })
 

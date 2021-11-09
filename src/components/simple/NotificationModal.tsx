@@ -49,33 +49,37 @@ export const NotificationModal = React.memo(({ theme, children, visible }: INoti
     }
 
     return (
-        !!theme &&
-        <Animated.View pointerEvents="none" style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: position.interpolate({
-                inputRange: [0, 1],
-                outputRange: [-Dimensions.get("window").height, 32],
-            }),
-            zIndex: 5,
-        }}>
-            <View style={{
-                margin: 40,
-                borderWidth: 1,
-                borderColor: theme.common.modalNotification.window.borderColor,
-                backgroundColor: theme.common.modalNotification.window.backgroundColor,
-                borderRadius: 8,
-                padding: 44,
-                alignItems: "center",
-            }}>
-                {
-                    children
-                }
-            </View>
-        </Animated.View>
+        <>
+            {
+                !!theme &&
+                <Animated.View pointerEvents="none" style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    bottom: position.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-Dimensions.get("window").height, 32],
+                    }),
+                    zIndex: 5,
+                }}>
+                    <View style={{
+                        margin: 40,
+                        borderWidth: 1,
+                        borderColor: theme.common.modalNotification.window.borderColor,
+                        backgroundColor: theme.common.modalNotification.window.backgroundColor,
+                        borderRadius: 8,
+                        padding: 44,
+                        alignItems: "center",
+                    }}>
+                        {
+                            children
+                        }
+                    </View>
+                </Animated.View>
+            }
+        </>
     );
 })
