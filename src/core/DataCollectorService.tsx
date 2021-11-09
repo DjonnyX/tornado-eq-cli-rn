@@ -17,7 +17,7 @@ import { CombinedDataActions, CapabilitiesActions, OrdersActions } from "../stor
 import { IProgress } from "@djonnyx/tornado-refs-processor/dist/DataCombiner";
 import { CapabilitiesSelectors, OrdersSelectors, SystemSelectors } from "../store/selectors";
 import { MainNavigationScreenTypes } from "../components/navigation";
-import { compileThemes, theme, THEMES_FILE_NAME } from "../theme";
+import { compileThemes, embededTheme, THEMES_FILE_NAME } from "../theme";
 import { ExternalStorage } from "../native";
 
 interface IDataCollectorServiceProps {
@@ -60,7 +60,8 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
         super(props);
     }
 
-    async componentDidMount() {let userDataPath: string | undefined = undefined;
+    async componentDidMount() {
+        let userDataPath: string | undefined = undefined;
         try {
             const isStorageAvailable = await ExternalStorage.isStorageAvailable();
             const isStorageWritable = await ExternalStorage.isStorageWritable();
@@ -92,12 +93,10 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
 
         if (!!savedThemes) {
             // Saved
-            theme.name = savedThemes.name;
-            theme.themes = savedThemes.themes;
             this.props._onChangeThemes(savedThemes);
         } else {
             // Embeded
-            this.props._onChangeThemes(theme);
+            this.props._onChangeThemes(embededTheme);
         }
 
         this._orderDataCombiner = new OrderDataCombiner({
@@ -167,13 +166,14 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
                 const terminal = data.refs.__raw.terminals.find(t => t.id === this.props._terminalId);
                 if (!!terminal) {
                     const themes: IEQueueTheme | undefined = data.refs.themes?.length > 0 ? compileThemes(data.refs.themes, terminal.config.theme) : undefined;
-                    assetsService.writeFile(`${storePath}/${THEMES_FILE_NAME}`, themes);
-
                     // Override embeded themes
-                    theme.name = terminal.config.theme;
                     if (!!themes) {
-                        theme.themes = themes.themes;
-                        this.props._onChangeThemes(themes);
+                        const theme = {
+                            name: terminal.config.theme,
+                            themes: themes.themes,
+                        }
+                        this.props._onChangeThemes(theme);
+                        assetsService.writeFile(`${storePath}/${THEMES_FILE_NAME}`, theme);
                     }
 
                     this.props._onChangeTerminal(terminal);
@@ -232,10 +232,6 @@ class DataCollectorServiceContainer extends Component<IDataCollectorServiceProps
     shouldComponentUpdate(nextProps: Readonly<IDataCollectorServiceProps>, nextState: Readonly<IDataCollectorServiceState>, nextContext: any) {
         if (this.props._serialNumber !== nextProps._serialNumber) {
             this._serialNumber$.next(this.props._serialNumber);
-        }
-
-        if (this.props._version !== nextProps._version) {
-            this._version$.next(nextProps._version);
         }
 
         if (nextProps._currentScreen === MainNavigationScreenTypes.LOADING && !!nextProps._storeId) {

@@ -1,11 +1,11 @@
-import { ICompiledLanguage, ICompiledOrder } from "@djonnyx/tornado-types";
+import { ICompiledLanguage, ICompiledOrder, IEQueueThemeColors } from "@djonnyx/tornado-types";
 import React from "react";
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
 import { GridList } from "../../layouts/GridList";
 import { OrderListItem } from "./OrderListItem";
 
 interface IOrderListProps {
-    themeName: string;
+    theme: IEQueueThemeColors;
     columns: number;
     rows: number;
     title: string;
@@ -18,9 +18,10 @@ interface IOrderListProps {
     itemTextStyle: StyleProp<TextStyle>;
 }
 
-export const OrderListColumn = React.memo(({ themeName, columns, rows, title, orders, language, layoutStyle, headerStyle, headerTextStyle,
+export const OrderListColumn = React.memo(({ theme, columns, rows, title, orders, language, layoutStyle, headerStyle, headerTextStyle,
     itemStyle, itemTextStyle }: IOrderListProps) => {
     return (
+        !!theme &&
         <View style={{ flex: 1, flexDirection: "column", height: "100%", overflow: "hidden" }}>
             <View style={{
                 height: 92, padding: 20, justifyContent: "center", alignItems: "center",
@@ -38,7 +39,7 @@ export const OrderListColumn = React.memo(({ themeName, columns, rows, title, or
                     padding={2} spacing={10} data={orders || []}
                     columnsNum={columns} rowsNum={rows} renderItem={({ item }) => {
                         return <OrderListItem key={item.data.id}
-                            themeName={themeName} style={itemStyle} textStyle={itemTextStyle}
+                            theme={theme} style={itemStyle} textStyle={itemTextStyle}
                             order={item.data} language={language} />
                     }}
                     keyExtractor={(item, index) => item.data.id}>

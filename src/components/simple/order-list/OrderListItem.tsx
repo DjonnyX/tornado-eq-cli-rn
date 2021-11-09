@@ -1,17 +1,18 @@
 import React from "react";
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
-import { ICompiledLanguage, ICompiledOrder } from "@djonnyx/tornado-types";
+import { ICompiledLanguage, ICompiledOrder, IEQueueThemeColors } from "@djonnyx/tornado-types";
 
 interface IOrderListItemProps {
-    themeName: string;
+    theme: IEQueueThemeColors;
     order: ICompiledOrder;
     language: ICompiledLanguage;
     style: StyleProp<ViewStyle>;
     textStyle: StyleProp<TextStyle>;
 }
 
-export const OrderListItem = React.memo(({ themeName, style, textStyle, language, order }: IOrderListItemProps) => {
+export const OrderListItem = React.memo(({ theme, style, textStyle, language, order }: IOrderListItemProps) => {
     return (
+        !!theme &&
         <View style={{
             flex: 1, width: "100%", height: "100%", justifyContent: "center", alignItems: "center",
             backgroundColor: "green", borderRadius: 8, padding: 22, ...style as any,

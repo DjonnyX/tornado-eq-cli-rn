@@ -1,12 +1,13 @@
+import { IEQueueTheme, IEQueueThemeColors } from "@djonnyx/tornado-types";
 import React, { Dispatch, useEffect } from "react";
 import { Text } from "react-native";
 import { connect } from "react-redux";
 import { NotificationActions } from "../../store/actions";
 import { IAppState } from "../../store/state";
-import { theme } from "../../theme";
 import { NotificationModal } from "./NotificationModal";
 
 interface ISnackProps {
+    theme: IEQueueThemeColors,
     // store
     _snackClose?: () => void;
 
@@ -17,7 +18,7 @@ interface ISnackProps {
     onComplete?: () => void;
 }
 
-const SnackContainer = React.memo(({ message, duration, visible, onComplete, _snackClose }: ISnackProps) => {
+const SnackContainer = React.memo(({ theme, message, duration, visible, onComplete, _snackClose }: ISnackProps) => {
     useEffect(() => {
         const timeout = setTimeout(() => {
             if (!!_snackClose) {
@@ -34,11 +35,16 @@ const SnackContainer = React.memo(({ message, duration, visible, onComplete, _sn
         }
     }, [visible, duration, message]);
     return (
-        <NotificationModal visible={visible}>
-            <Text style={{ fontSize: 20, fontWeight: "bold", color: theme.themes[theme.name].common.notificationAlert.textColor }}>{message}</Text>
+        !!theme &&
+        <NotificationModal theme={theme} visible={visible}>
+            <Text style={{
+                fontWeight: "bold", color: theme.common.notificationAlert.textColor,
+                fontSize: theme.common.notificationAlert.textFontSize
+            }}>{message}</Text>
         </NotificationModal>
     );
-})
+});
+
 const mapStateToProps = (state: IAppState, ownProps: ISnackProps) => {
     return {
 

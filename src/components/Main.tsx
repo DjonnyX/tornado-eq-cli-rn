@@ -1,54 +1,51 @@
-import React, { Dispatch, useEffect } from "react";
+import React, { Dispatch, useCallback, useEffect, useRef } from "react";
 import { StatusBar } from "react-native";
 import { connect } from "react-redux";
 import { CapabilitiesActions } from "../store/actions";
 import {
     AlertService, AuthService, DataCollectorService, SnackService
 } from "../core";
-import { MainNavigationScreenTypes } from "./navigation";
+import { MainNavigationScreenTypes, MainNavigationStack } from "./navigation";
 import { IAppState } from "../store/state";
-import { CapabilitiesSelectors } from "../store/selectors";
-import { AuthScreen } from "./screens/AuthScreen";
-import { LoadingScreen } from "./screens/LoadingScreen";
-import { OrdersScreen } from "./screens/OrdersScreen";
+import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native";
+import { NavigationService } from "../core/NavigationService";
 
 interface IMainProps {
     // store props
-    _currentScreen: MainNavigationScreenTypes;
     _setCurrentScreen?: (screen: MainNavigationScreenTypes) => void;
     // self props
 }
 
-const MainContainer = React.memo(({ _currentScreen, _setCurrentScreen }: IMainProps) => {
+const MainContainer = React.memo(({ _setCurrentScreen }: IMainProps) => {
+    const navRef = useRef<NavigationContainerRef>();
+
     useEffect(() => {
         if (_setCurrentScreen !== undefined) {
             _setCurrentScreen(MainNavigationScreenTypes.AUTH);
         }
     }, []);
 
+    const onNavigate = useCallback((screen: MainNavigationScreenTypes) => {
+        navRef.current?.navigate(screen);
+    }, [navRef]);
+
     return (
         <>
             {/** services */}
+            <NavigationService onNavigate={onNavigate} />
             <AuthService />
             <DataCollectorService />
             <AlertService />
 
             {/** components */}
             <StatusBar hidden={true} />
-            {/** Navigation screens */}
-            {
-                _currentScreen === MainNavigationScreenTypes.AUTH &&
-                <AuthScreen />
-            }
-            {
-                _currentScreen === MainNavigationScreenTypes.LOADING &&
-                <LoadingScreen />
-            }
-            {
-                _currentScreen === MainNavigationScreenTypes.ORDERS &&
-                <OrdersScreen />
-            }
-
+            <NavigationContainer ref={navRef as any} onStateChange={(s) => {
+                if (_setCurrentScreen !== undefined) {
+                    _setCurrentScreen(s?.routes[s.index].name as MainNavigationScreenTypes);
+                }
+            }}>
+                <MainNavigationStack />
+            </NavigationContainer>
             {/** snack */}
             <SnackService />
         </>
@@ -57,7 +54,7 @@ const MainContainer = React.memo(({ _currentScreen, _setCurrentScreen }: IMainPr
 
 const mapStateToProps = (state: IAppState, ownProps: IMainProps) => {
     return {
-        _currentScreen: CapabilitiesSelectors.selectCurrentScreen(state),
+
     };
 };
 

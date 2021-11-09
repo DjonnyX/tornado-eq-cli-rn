@@ -1,40 +1,40 @@
-import { ICompiledLanguage, ICompiledOrder, ITerminalEQConfig, OrderStatuses } from "@djonnyx/tornado-types";
+import { ICompiledLanguage, ICompiledOrder, IEQueueTheme, IEQueueThemeColors, ITerminalEQConfig, OrderStatuses } from "@djonnyx/tornado-types";
 import React from "react";
 import { View } from "react-native";
-import { theme } from "../../../theme";
 import { localize } from "../../../utils/localization";
 import { OrderListColumn } from "./OrderListColumn";
 
 interface IOrderListProps {
-    themeName: string;
+    theme: IEQueueThemeColors;
     language: ICompiledLanguage;
     orders: Array<ICompiledOrder>;
     config: ITerminalEQConfig;
 }
 
-export const OrderListContainer = React.memo(({ themeName, config, orders, language }: IOrderListProps) => {
+export const OrderListContainer = React.memo(({ theme, config, orders, language }: IOrderListProps) => {
     return (
+        !!theme &&
         <View style={{ width: "100%", height: "100%", flexDirection: "row" }}>
             <View style={{
                 flex: 1, height: "100%", overflow: "hidden",
-                backgroundColor: theme.themes[theme.name].orders.new.background,
+                backgroundColor: theme.orders.new.backgroundColor,
             }}>
                 <OrderListColumn
-                    themeName={themeName}
+                    theme={theme}
                     layoutStyle={{
                         paddingTop: 8, paddingLeft: 8,
                     }}
                     headerStyle={{
-                        backgroundColor: theme.themes[theme.name].orders.new.header.background,
+                        backgroundColor: theme.orders.new.header.backgroundColor,
                     }}
                     headerTextStyle={{
-                        color: theme.themes[theme.name].orders.new.header.textColor,
+                        color: theme.orders.new.header.textColor,
                     }}
                     itemStyle={{
-                        backgroundColor: theme.themes[theme.name].orders.new.item.background,
+                        backgroundColor: theme.orders.new.item.backgroundColor,
                     }}
                     itemTextStyle={{
-                        color: theme.themes[theme.name].orders.new.item.textColor,
+                        color: theme.orders.new.item.textColor,
                     }}
                     columns={config.layout.new.columns} rows={config.layout.new.rows}
                     title={
@@ -43,23 +43,23 @@ export const OrderListContainer = React.memo(({ themeName, config, orders, langu
             </View>
             <View style={{
                 flex: 1, height: "100%", overflow: "hidden",
-                backgroundColor: theme.themes[theme.name].orders.complete.background,
+                backgroundColor: theme.orders.complete.backgroundColor,
             }}>
                 <OrderListColumn
-                    themeName={themeName}
+                    theme={theme}
                     layoutStyle={{
                         paddingTop: 8, paddingRight: 8,
                     }}
                     headerStyle={{
-                        backgroundColor: theme.themes[theme.name].orders.complete.header.background,
+                        backgroundColor: theme.orders.complete.header.backgroundColor,
                     }} headerTextStyle={{
-                        color: theme.themes[theme.name].orders.complete.header.textColor,
+                        color: theme.orders.complete.header.textColor,
                     }}
                     itemStyle={{
-                        backgroundColor: theme.themes[theme.name].orders.complete.item.background,
+                        backgroundColor: theme.orders.complete.item.backgroundColor,
                     }}
                     itemTextStyle={{
-                        color: theme.themes[theme.name].orders.complete.item.textColor,
+                        color: theme.orders.complete.item.textColor,
                     }}
                     columns={config.layout.complete.columns} rows={config.layout.complete.rows}
                     title={

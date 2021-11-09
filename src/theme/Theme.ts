@@ -18,44 +18,49 @@ export const compileThemes = (themes: Array<IAppTheme<IEQueueThemeColors>>, name
 /**
  * Embeded theme
  */
-export const theme: IEQueueTheme = {
-    name: "embeded",
+export const embededTheme: IEQueueTheme = {
+    name: "light",
     themes: {
-        ["embeded"]: {
+        ["light"]: {
             common: {
                 modal: {
-                    background: "#e3e3e3",
+                    backgroundColor: "#e3e3e3",
                     window: {
-                        background: "transparent",
+                        backgroundColor: "transparent",
                     }
                 },
                 modalTransparent: {
-                    background: "rgba(0,0,0,0.5)",
+                    backgroundColor: "rgba(0,0,0,0.5)",
                     window: {
-                        background: "rgba(0,0,0,0.83)",
+                        backgroundColor: "#fff",
                         borderColor: "rgba(0,0,0,0.1)"
                     }
                 },
                 modalNotification: {
-                    background: "none",
+                    backgroundColor: "none",
                     window: {
-                        background: "rgba(0,0,0,0.75)",
+                        backgroundColor: "rgba(0,0,0,0.75)",
                         borderColor: "rgba(0,0,0,0.1)",
                     }
                 },
                 notificationAlert: {
                     textColor: "rgba(255,255,255,0.75)",
+                    textFontSize: 20,
                 },
                 alert: {
                     titleColor: "rgba(0,0,0,0.75)",
+                    titleFontSize: 20,
                     messageColor: "rgba(0,0,0,0.75)",
+                    messageFontSize: 18,
                     buttonColor: "#30a02a",
                     buttonTextColor: "rgba(255,255,255,1)",
+                    buttonTextFontSize: 14,
                 }
             },
             service: {
                 errorLabel: {
                     textColor: "red",
+                    textFontSize: 12,
                 },
                 textInput: {
                     placeholderColor: "rgba(0,0,0,0.5)",
@@ -63,44 +68,49 @@ export const theme: IEQueueTheme = {
                     underlineColor: "#30a02a",
                     underlineWrongColor: "red",
                     textColor: "rgba(0,0,0,1)",
+                    textFontSize: 16,
                 },
                 picker: {
                     textColor: "rgba(0,0,0,1)",
+                    textFontSize: 16,
                     placeholderColor: "gray",
                 },
                 button: {
                     backgroundColor: "#30a02a",
                     textColor: "rgba(255,255,255,1)",
+                    textFontSize: 16,
                 }
             },
             loading: {
-                background: "#fff",
+                backgroundColor: "#fff",
                 progressBar: {
                     thumbColor: "rgba(0,0,0,0.85)",
                     trackColor: "rgba(0,0,0,0.75)",
                     textColor: "rgba(0,0,0,0.75)",
+                    textFontSize: 13,
                 }
             },
             orders: {
+                backgroundColor: "transparent",
                 new: {
-                    background: "#fff",
+                    backgroundColor: "#fff",
                     header: {
-                        background: "#000",
+                        backgroundColor: "#000",
                         textColor: "#fff",
                     },
                     item: {
-                        background: "#ededed",
+                        backgroundColor: "#ededed",
                         textColor: "rgba(0,0,0,0.75)",
                     }
                 },
                 complete: {
-                    background: "#fff",
+                    backgroundColor: "#fff",
                     header: {
-                        background: "#000",
+                        backgroundColor: "#000",
                         textColor: "#fff",
                     },
                     item: {
-                        background: "#4a9500",
+                        backgroundColor: "#4a9500",
                         textColor: "#fff",
                     }
                 },
@@ -109,38 +119,43 @@ export const theme: IEQueueTheme = {
         ["dark"]: {
             common: {
                 modal: {
-                    background: "#000",
+                    backgroundColor: "#000",
                     window: {
-                        background: "#000",
+                        backgroundColor: "#000",
                     }
                 },
                 modalTransparent: {
-                    background: "rgba(255,255,255,0.25)",
+                    backgroundColor: "rgba(255,255,255,0.075)",
                     window: {
-                        background: "rgba(0,0,0,0.83)",
+                        backgroundColor: "#000",
                         borderColor: "rgba(255,255,255,0.1)"
                     }
                 },
                 modalNotification: {
-                    background: "none",
+                    backgroundColor: "none",
                     window: {
-                        background: "rgba(255,255,255,0.75)",
+                        backgroundColor: "rgba(255,255,255,0.75)",
                         borderColor: "rgba(255,255,255,0.1)",
                     }
                 },
                 notificationAlert: {
                     textColor: "rgba(0,0,0,0.75)",
+                    textFontSize: 20,
                 },
                 alert: {
                     titleColor: "rgba(255,255,255,0.75)",
+                    titleFontSize: 20,
                     messageColor: "rgba(255,255,255,0.75)",
+                    messageFontSize: 18,
                     buttonColor: "#30a02a",
                     buttonTextColor: "rgba(255,255,255,1)",
+                    buttonTextFontSize: 14,
                 }
             },
             service: {
                 errorLabel: {
                     textColor: "red",
+                    textFontSize: 12,
                 },
                 textInput: {
                     placeholderColor: "rgba(255,255,255,0.5)",
@@ -148,44 +163,49 @@ export const theme: IEQueueTheme = {
                     underlineColor: "#30a02a",
                     underlineWrongColor: "red",
                     textColor: "rgba(255,255,255,1)",
+                    textFontSize: 16,
                 },
                 picker: {
                     textColor: "rgba(255,255,255,1)",
+                    textFontSize: 16,
                     placeholderColor: "gray",
                 },
                 button: {
                     backgroundColor: "#30a02a",
                     textColor: "rgba(255,255,255,1)",
+                    textFontSize: 16,
                 }
             },
             loading: {
-                background: "#000",
+                backgroundColor: "#000",
                 progressBar: {
                     thumbColor: "rgba(255,255,255,0.85)",
                     trackColor: "rgba(255,255,255,0.75)",
                     textColor: "rgba(255,255,255,0.75)",
+                    textFontSize: 13,
                 }
             },
             orders: {
+                backgroundColor: "transparent",
                 new: {
-                    background: "#000",
+                    backgroundColor: "#000",
                     header: {
-                        background: "#282828",
+                        backgroundColor: "#282828",
                         textColor: "rgba(255,255,255,0.75)",
                     },
                     item: {
-                        background: "#282828",
+                        backgroundColor: "#282828",
                         textColor: "rgba(255,255,255,0.75)",
                     }
                 },
                 complete: {
-                    background: "#000",
+                    backgroundColor: "#000",
                     header: {
-                        background: "#2a5500",
+                        backgroundColor: "#2a5500",
                         textColor: "rgba(255,255,255,0.75)",
                     },
                     item: {
-                        background: "#2a5500",
+                        backgroundColor: "#2a5500",
                         textColor: "rgba(255,255,255,0.75)",
                     }
                 },

@@ -3,13 +3,14 @@ import { catchError, map, retry, retryWhen, switchMap } from "rxjs/operators";
 import { config } from "../Config";
 import {
     IRef, INode, ISelector, IProduct, ITag, IAsset, ILanguage, ITranslation, IBusinessPeriod, IOrderType,
-    ICurrency, IAd, IStore, ITerminal, TerminalTypes, ILicense
+    ICurrency, IAd, IStore, ITerminal, TerminalTypes, ILicense, IEQueueTheme, IAppTheme, ISystemTag
 } from "@djonnyx/tornado-types";
 import { genericRetryStrategy } from "../utils/request";
 import { Log } from "./Log";
 import { AuthStore } from "../native";
 import { extractError } from "../utils/error";
 import { ApiErrorCodes } from "./ApiErrorCodes";
+import { IDataService } from "@djonnyx/tornado-refs-processor";
 
 interface IRequestOptions {
     useAttempts?: boolean;
@@ -93,7 +94,47 @@ const parseResponse = (res: Response) => {
     );
 }
 
-class RefApiService {
+class RefApiService implements IDataService<IEQueueTheme> {
+    getNodes(): Observable<INode[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getSelectors(): Observable<ISelector[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getProducts(): Observable<IProduct[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getTags(): Observable<ITag[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getAssets(): Observable<IAsset[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getBusinessPeriods(): Observable<IBusinessPeriod[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getOrderTypes(): Observable<IOrderType[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getCurrencies(): Observable<ICurrency[]> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getAds(): Observable<IAd[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    getSystemTags(): Observable<ISystemTag[]> {
+        throw new Error("Method not implemented.");
+    }
+
     private _serial: string | undefined;
 
     public set serial(v: string) {
@@ -201,7 +242,7 @@ class RefApiService {
             from(this.getAccessToken()).pipe(
                 switchMap(token => {
                     return from(
-                        fetch(`${config.refServer.address}/api/v1/refs`,
+                        fetch(`${config.refServer.address}/api/v1/refs?theme=${TerminalTypes.EQUEUE}`,
                             {
                                 method: "GET",
                                 headers: {
@@ -300,7 +341,7 @@ class RefApiService {
             from(this.getAccessToken()).pipe(
                 switchMap(token => {
                     return from(
-                        fetch(`${config.refServer.address}/api/v1/terminals`,
+                        fetch(`${config.refServer.address}/api/v1/terminals?type=${TerminalTypes.EQUEUE}`,
                             {
                                 method: "GET",
                                 headers: {
@@ -315,6 +356,37 @@ class RefApiService {
             switchMap(res => parseResponse(res)),
             map(resData => resData.data),
         );
+    }
+
+    getThemes(): Observable<Array<IAppTheme<IEQueueTheme>>> {
+        Log.i("RefApiService", "getThemes");
+        let response: Observable<Array<IAppTheme<IEQueueTheme>>>;
+        try {
+            response = request(
+                from(this.getAccessToken()).pipe(
+                    switchMap(token => {
+                        return from(
+                            fetch(`${config.refServer.address}/api/v1/app-themes?type=${TerminalTypes.KIOSK}`,
+                                {
+                                    method: "GET",
+                                    headers: {
+                                        "x-access-token": token,
+                                    },
+                                }
+                            )
+                        );
+                    })
+                ),
+            ).pipe(
+                switchMap(res => parseResponse(res)),
+                map(resData => {
+                    return resData.data;
+                }),
+            );
+        } catch (err) {
+            return throwError(Error("Something went wrong"));
+        }
+        return response;
     }
 }
 

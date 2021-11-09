@@ -1,47 +1,58 @@
-import React, { Dispatch, useEffect } from "react";
+import React, { Dispatch, useCallback, useEffect } from "react";
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack";
 import { ProgressBar } from "@react-native-community/progress-bar-android";
 import { View, Text } from "react-native";
 import { MainNavigationScreenTypes } from "../navigation";
 import { IAppState } from "../../store/state";
 import { connect } from "react-redux";
 import { CapabilitiesSelectors, CombinedDataSelectors } from "../../store/selectors";
-import { theme } from "../../theme";
-import { CapabilitiesActions } from "../../store/actions";
+import { CommonActions } from "@react-navigation/native";
+import { IEQueueTheme } from "@djonnyx/tornado-types";
 
 interface ILoadingSelfProps {
   // store props
-  _theme: string;
+  _theme: IEQueueTheme;
   _progress: number;
   _loaded: boolean;
-  _setCurrentScreen: (screen: MainNavigationScreenTypes) => void;
 
   // self props
 }
 
-interface ILoadingProps extends ILoadingSelfProps { }
+interface ILoadingProps extends StackScreenProps<any, MainNavigationScreenTypes.LOADING>, ILoadingSelfProps { }
 
-const LoadingScreenContainer = React.memo(({ _theme, _progress, _loaded, _setCurrentScreen }: ILoadingProps) => {
+const LoadingScreenContainer = React.memo(({ _theme, _progress, _loaded, navigation }: ILoadingProps) => {
   useEffect(() => {
     if (_loaded) {
-      _setCurrentScreen(MainNavigationScreenTypes.ORDERS);
+      //setTimeout(() => {
+      navigation.dispatch(
+        CommonActions.reset({
+          routes: [
+            { name: MainNavigationScreenTypes.ORDERS },
+          ],
+        })
+      );
+      //});
     }
   }, [_loaded]);
 
+  const theme = !!_theme ? _theme?.themes?.[_theme?.name] : undefined;
+
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.themes[theme.name].loading.background }}>
+    !!theme &&
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.loading.backgroundColor }}>
       <ProgressBar
         style={{ width: "100%", maxWidth: 200, marginLeft: "10%", marginRight: "10%" }}
         styleAttr="Horizontal"
         progress={_progress / 100}
-        indeterminate={false}
-        color={theme.themes[theme.name].loading.progressBar.trackColor}></ProgressBar>
-      <Text style={{ color: theme.themes[theme.name].loading.progressBar.textColor }}>
+        indeterminate={_progress === 1 || _progress === 0}
+        color={theme.loading.progressBar.trackColor}></ProgressBar>
+      <Text style={{ color: theme.loading.progressBar.textColor, fontSize: theme.loading.progressBar.textFontSize }}>
         {
           _progress > 0
             ?
             `${_progress}%`
             :
-            "загрузка..."
+            "loading..."
         }
       </Text>
     </View>
@@ -58,9 +69,7 @@ const mapStateToProps = (state: IAppState, ownProps: ILoadingProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>): any => {
   return {
-    _setCurrentScreen: (screen: MainNavigationScreenTypes) => {
-      dispatch(CapabilitiesActions.setCurrentScreen(screen));
-    },
+
   };
 };
 

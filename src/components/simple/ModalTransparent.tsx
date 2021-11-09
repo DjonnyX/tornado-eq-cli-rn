@@ -1,14 +1,16 @@
+import { IEQueueThemeColors } from "@djonnyx/tornado-types";
 import React from "react";
 import { View, Modal } from "react-native";
-import { theme } from "../../theme";
 
 interface IModalTransparentProps {
+    theme: IEQueueThemeColors,
     children: JSX.Element;
     visible: boolean;
 }
 
-export const ModalTransparent = React.memo(({ children, visible }: IModalTransparentProps) => {
+export const ModalTransparent = React.memo(({ theme, children, visible }: IModalTransparentProps) => {
     return (
+        !!theme &&
         <Modal
             animationType="slide"
             visible={visible}
@@ -25,13 +27,13 @@ export const ModalTransparent = React.memo(({ children, visible }: IModalTranspa
                 bottom: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: theme.themes[theme.name].common.modalTransparent.background,
+                backgroundColor: theme.common.modalTransparent.backgroundColor,
             }}>
                 <View style={{
                     margin: 40,
                     borderWidth: 0,
-                    borderColor: theme.themes[theme.name].common.modalTransparent.window.borderColor,
-                    backgroundColor: theme.themes[theme.name].common.modalTransparent.window.background,
+                    borderColor: theme.common.modalTransparent.window.borderColor,
+                    backgroundColor: theme.common.modalTransparent.window.backgroundColor,
                     borderRadius: 8,
                     padding: 44,
                     alignItems: "center",

@@ -59,6 +59,7 @@ const parseResponse = (res: Response) => {
         switchMap(data => {
             if (!!data.error && data.error.length > 0) {
                 let errText = "";
+                console.warn(data.error?.[0]?.message)
                 switch (data.error[0].code) {
                     case ApiErrorCodes.REF_TERMINAL_TOKEN_CHECK_LICENSE_ERROR:
                         errText = "Ошибка при проверке лицензии";

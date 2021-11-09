@@ -1,3 +1,4 @@
+import { IEQueueTheme } from "@djonnyx/tornado-types";
 import { createSelector } from "reselect";
 import { IAppState } from "../state";
 
@@ -5,7 +6,7 @@ const getCapabilities = (state: IAppState) => state.capabilities;
 
 export namespace CapabilitiesSelectors {
     export const selectTheme = createSelector(getCapabilities, (state) => {
-        return state?.themes;
+        return state?.themes as IEQueueTheme;
     });
 
     export const selectLanguage = createSelector(getCapabilities, (state) => {
