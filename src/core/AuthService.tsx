@@ -53,7 +53,7 @@ class AuthServiceContainer extends Component<IAuthServiceProps, IAuthServiceStat
             refApiService.serial = orderApiService.serial = nextProps._serialNumber || "";
             orderApiService.storeId = nextProps._storeId || "";
 
-            if (nextProps._serialNumber !== undefined) {
+            if (nextProps._serialNumber !== null && nextProps._serialNumber !== undefined) {
                 this.saveDeviceInfo({
                     ...this._deviceInfo,
                     serialNumber: nextProps._serialNumber,
